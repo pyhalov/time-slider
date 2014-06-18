@@ -101,7 +101,7 @@ class RsyncBackup:
     def __init_from_mp (self, mountpoint):
         self.rsyncsmf = rsyncsmf.RsyncSMF("%s:rsync" %(plugin.PLUGINBASEFMRI))
         rsyncBaseDir = self.rsyncsmf.get_target_dir()
-        sys,nodeName,rel,ver,arch = os.uname()
+        sysName,nodeName,rel,ver,arch = os.uname()
         self.rsync_dir = os.path.join(rsyncBaseDir,
                                      rsyncsmf.RSYNCDIRPREFIX,
                                      nodeName)
@@ -637,7 +637,7 @@ class ScanSnapshots(threading.Thread):
         # get rsync backup dir
         self.rsyncsmf = rsyncsmf.RsyncSMF("%s:rsync" %(plugin.PLUGINBASEFMRI))
         rsyncBaseDir = self.rsyncsmf.get_target_dir()
-        sys,nodeName,rel,ver,arch = os.uname()
+        sysName,nodeName,rel,ver,arch = os.uname()
         self.rsyncDir = os.path.join(rsyncBaseDir,
                                      rsyncsmf.RSYNCDIRPREFIX,
                                      nodeName)

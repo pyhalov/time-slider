@@ -115,7 +115,7 @@ class RsyncNote(Note):
                                          % (plugin.PLUGINBASEFMRI))
         self._lock = threading.Lock()
         self._masterKey = None
-        sys,self._nodeName,rel,ver,arch = os.uname()
+        sysName,self._nodeName,rel,ver,arch = os.uname()
         # References to gio.File and handler_id of a registered
         # monitor callback on gio.File
         self._fm = None

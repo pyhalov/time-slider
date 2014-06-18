@@ -242,7 +242,7 @@ class SetupManager:
         self._newRsyncTargetDir = self._initialRsyncTargetDir
         self._smfTargetKey = self._rsyncSMF.get_target_key()
         self._newRsyncTargetSelected = False
-        sys,self._nodeName,rel,ver,arch = os.uname()
+        sysName,self._nodeName,rel,ver,arch = os.uname()
 
         # Model columns:
         # 0 Themed icon list (python list)
@@ -732,7 +732,7 @@ class SetupManager:
 
         # Check that selected directory is either empty
         # or already preconfigured as a backup target
-        sys,nodeName,rel,ver,arch = os.uname()
+        sysName,nodeName,rel,ver,arch = os.uname()
         basePath = os.path.join(targetMountPoint,
                                 rsyncsmf.RSYNCDIRPREFIX)
         nodePath = os.path.join(basePath,
@@ -1178,7 +1178,7 @@ class SetupManager:
     def setup_rsync_config(self):
         if self._rsyncEnabled == True:
             if self._newRsyncTargetSelected == True:
-                sys,nodeName,rel,ver,arch = os.uname()
+                sysName,nodeName,rel,ver,arch = os.uname()
                 basePath = os.path.join(self._newRsyncTargetDir,
                                         rsyncsmf.RSYNCDIRPREFIX,)
                 nodePath = os.path.join(basePath,

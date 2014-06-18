@@ -260,7 +260,7 @@ class BackupQueue():
         # Base variables for backup device. Will be initialised
         # later in _find_backup_device()
         self._smfTargetKey = self._smfInst.get_target_key()
-        sys,self._nodeName,rel,ver,arch = os.uname()
+        sysName,self._nodeName,rel,ver,arch = os.uname()
         self._rsyncBaseDir = None
         self._rsyncDir = None
         self._keyFile = None
@@ -1128,7 +1128,7 @@ def backup_name_to_snapshot_name(path):
        Returns a zfs snapshot name.
     """
     head,snapLabel = os.path.split(path)
-    sys,nodeName,rel,ver,arch = os.uname()
+    sysName,nodeName,rel,ver,arch = os.uname()
     prefix = os.path.join(rsyncsmf.RSYNCDIRPREFIX,
                           nodeName + '/')
     suffix = rsyncsmf.RSYNCDIRSUFFIX
