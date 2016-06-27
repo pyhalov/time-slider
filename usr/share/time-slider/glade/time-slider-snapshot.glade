@@ -11,7 +11,6 @@
     <property name="destroy_with_parent">True</property>
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-    <property name="has_separator">False</property>
     <signal name="delete_event" handler="on_window_delete_event"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">

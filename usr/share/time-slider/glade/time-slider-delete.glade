@@ -9,7 +9,6 @@
     <property name="window_position">center-on-parent</property>
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <signal name="delete_event" handler="on_window_delete_event"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
@@ -301,7 +300,6 @@
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">dialog</property>
     <property name="transient_for">time-slider-delete</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -439,7 +437,6 @@
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -507,7 +504,6 @@
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox4">
         <property name="visible">True</property>

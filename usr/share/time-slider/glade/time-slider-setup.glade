@@ -470,7 +470,6 @@
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox6">
         <property name="visible">True</property>
