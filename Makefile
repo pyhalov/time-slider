@@ -8,9 +8,9 @@ INSTALL_SCRIPT = ${INSTALL} -f
 RM = /usr/bin/rm -f
 RMRF = /usr/bin/rm -Rf
 RMDIR = /usr/bin/rmdir
-# Use python 2.6 if PYTHON environent is not set
+# Use python 2.7 if PYTHON environent is not set
 ifeq ($(strip $(PYTHON)),)
-PYTHON = /usr/bin/python2.6
+PYTHON = /usr/bin/python2.7
 endif
 
 SUBDIRS = po data
