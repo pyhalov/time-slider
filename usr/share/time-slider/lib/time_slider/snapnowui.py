@@ -147,6 +147,7 @@ class SnapshotNowDialog:
 	  dialog.set_title (_("Error"))
 	  dialog.format_secondary_text(error)
 	  dialog.run ()
+	  sys.exit(1)
         else:
 	  dialog = gtk.MessageDialog(None,
 				     0,
@@ -159,8 +160,8 @@ class SnapshotNowDialog:
 				       "has been created.\n") %
 				       { "zfs_fs" : self.zfs_fs, "valid_name" : valid_name})
 	  dialog.run ()
+	  sys.exit(0)
 
-	sys.exit(1)
       else:
 	self.snap_name_entry.set_text (valid_name)
 
