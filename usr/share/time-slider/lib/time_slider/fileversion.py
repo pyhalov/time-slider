@@ -94,7 +94,7 @@ class File:
 		icon_factory = gnome.ui.ThumbnailFactory(gnome.ui.THUMBNAIL_SIZE_NORMAL)
 		mtime = os.path.getmtime(self.path)
 		uri = gnomevfs.make_uri_from_input(self.path)
-		thumb =  icon_factory.lookup (uri, mtime)
+		thumb =  icon_factory.lookup (uri, int(mtime))
 		if thumb:
 		  return gtk.gdk.pixbuf_new_from_file (thumb)
 	        thumb = icon_factory.generate_thumbnail (uri, self.info.get_content_type())
