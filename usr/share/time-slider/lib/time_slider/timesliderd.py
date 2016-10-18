@@ -800,17 +800,17 @@ class SnapshotManager(threading.Thread):
         for zpool in self._zpools:
             status = self._poolstatus[zpool.name]
             if status == 4:
-                syslog.syslog(syslog.LOG_EMERG,
+                syslog.syslog(syslog.LOG_WARNING,
                               "%s is over %d%% capacity. " \
                               "All automatic snapshots were destroyed" \
                                % (zpool.name, self._emergencyLevel))
             elif status == 3:
-                syslog.syslog(syslog.LOG_ALERT,
+                syslog.syslog(syslog.LOG_WARNING,
                               "%s exceeded %d%% capacity. " \
                               "Automatic snapshots over 1 hour old were destroyed" \
                                % (zpool.name, self._emergencyLevel))
             elif status == 2:
-                syslog.syslog(syslog.LOG_CRIT,
+                syslog.syslog(syslog.LOG_WARNING,
                               "%s exceeded %d%% capacity. " \
                               "Weekly, hourly and daily automatic snapshots were destroyed" \
                                % (zpool.name, self._criticalLevel))                             
