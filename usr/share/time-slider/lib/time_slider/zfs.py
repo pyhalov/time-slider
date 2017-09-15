@@ -124,15 +124,14 @@ class Datasets(Exception):
             children = [name for name in everything[idx:] if \
                         name.find(datasetname) == 0]
             for child in children:
-                idx = bisect_left(excluded, child)
-                if idx < len(excluded) and excluded[idx] == child:
+                if set(excluded).intersection([child]):
                     excludedchild = True
                     single.append(datasetname)
                     break
             if excludedchild == False:
                 # We want recursive list sorted in alphabetical order
                 # so insert instead of append to the list.
-                recursive.append (datasetname)
+                recursive.insert (0, datasetname)
 
         for datasetname in recursive:
             parts = datasetname.rsplit('/', 1)
@@ -143,12 +142,7 @@ class Datasets(Exception):
                 # set locally.
                 finalrecursive.append(datasetname)
                 continue
-            idx = bisect_right(recursive, parent)
-            if len(recursive) > 0 and \
-               recursive[idx-1] == parent:
-                # Parent already marked for recursive snapshot: so skip
-                continue
-            else:
+            if not set(recursive).intersection([parent]):
                 finalrecursive.append(datasetname)
 
         for name in finalrecursive:
