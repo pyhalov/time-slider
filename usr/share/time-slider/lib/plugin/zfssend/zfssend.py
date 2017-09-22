@@ -28,7 +28,6 @@ from bisect import insort
 
 from time_slider import util, smf, zfs
 
-# Set to True if SMF property value of "plugin/command" is "true"
 verboseprop = "plugin/verbose"
 propbasename = "org.opensolaris:time-slider-plugin"
 print _("Do I work?")
@@ -147,7 +146,7 @@ def main(argv):
         sendcmd = None
         prevsnapname = None
         ds = zfs.ReadableDataset(dataset)
-        prevlabel = ds.get_user_property(propname)
+        prevlabel = ds.get_user_property(propname, True)
 
         snapname = "%s@%s" % (ds.name, snaplabel)
         if (prevlabel == None or prevlabel == '-' or len(prevlabel) == 0):

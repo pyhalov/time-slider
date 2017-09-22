@@ -85,7 +85,7 @@
 	verbose: Send extra, verbose output to standard error and syslog for
              analytical and debugging purposes if set to "true"
     trigger_on: A comma seperated list of auto-snapshot SMF service instances
-                upon which to execute the command specified by plugin/command.
+                upon which to execute the command specified by plugin/trigger_command.
                 The keyword "all" serves as a wildcard value matching all
                 enabled auto-snapshot SMF instances, or as an example, a value
                 of "hourly,daily" would trigger the plugin for snapshot events
@@ -146,7 +146,7 @@
 	</property_group>
 
 	<property_group name="plugin" type="application">
-		<propval name="command"
+		<propval name="trigger_command"
 			type="astring" value="/usr/lib/time-slider/plugins/zfssend/zfssend" override="true"/>
 	</property_group>
 
@@ -243,7 +243,7 @@ In order to use this service, you must enable the time-slider service plus at le
 instance per set of automatic snapshots you want to take in addition to one or more Time Slider plugin
 instnace.
 When enabled, the time-slider service will execute the command defined by the plugin's SMF property
-"plugin/command" after it creates snapshot(s) according to an enabled auto-snapshot instance.
+"plugin/trigger_command" after it creates snapshot(s) according to an enabled auto-snapshot instance.
 
 Time Slider provides the following environment variables for consumption by the plugin's defined command:
 AUTOSNAP_LABEL: The last component of the snapshot(s) name(s) (the part after the @)

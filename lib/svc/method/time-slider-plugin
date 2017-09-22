@@ -23,13 +23,12 @@
 # Copyright 2010 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# ident	"%Z%%M%	%I%	%E% SMI"
 
 . /lib/svc/share/smf_include.sh
 
 case "$1" in
 'start')
-    PLUGIN_CMD="$(svcprop -p plugin/command $SMF_FMRI)"
+    PLUGIN_CMD="$(svcprop -p plugin/trigger_command $SMF_FMRI)"
     if [ $? -ne 0 ] ; then
         echo "Unable to obtain plugin invocation command"
         exit $SMF_EXIT_ERR_CONFIG
