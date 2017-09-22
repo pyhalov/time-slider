@@ -42,7 +42,6 @@ from time_slider import util, zfs, dbussvc, autosnapsmf, timeslidersmf
 import rsyncsmf
 
 
-# Set to True if SMF property value of "plugin/command" is "true"
 verboseprop = "plugin/verbose"
 propbasename = "org.opensolaris:time-slider-plugin"
 

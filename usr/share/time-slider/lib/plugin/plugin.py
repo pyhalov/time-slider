@@ -163,5 +163,5 @@ class PluginManager():
                                      % (fmri))
                     sys.stderr.write("Reason:\n%s\n" % (message))
             else:
-                util.debug("Found disabled plugin:\t%s" + fmri, self.verbose)
+                util.debug("Found disabled plugin:\t%s" % (fmri), self.verbose)
 
