@@ -28,8 +28,6 @@ import sys
 import threading
 import subprocess
 import string
-import gnomevfs
-import gnome.ui
 #import traceback
 
 try:
@@ -90,19 +88,7 @@ class File:
 			self.exist = False
 
 	def  get_icon (self):
-		#try thumnailer first
-		icon_factory = gnome.ui.ThumbnailFactory(gnome.ui.THUMBNAIL_SIZE_NORMAL)
-		mtime = os.path.getmtime(self.path)
-		uri = gnomevfs.make_uri_from_input(self.path)
-		thumb =  icon_factory.lookup (uri, int(mtime))
-		if thumb:
-		  return gtk.gdk.pixbuf_new_from_file (thumb)
-	        thumb = icon_factory.generate_thumbnail (uri, self.info.get_content_type())
-		if thumb:
-		  icon_factory.save_thumbnail (thumb, uri, mtime)
-		  return thumb
-		 #fallback get the themed icon
-		return gtk.icon_theme_get_default().choose_icon (self.info.get_icon().get_property ("names"), 48,  gtk.ICON_LOOKUP_USE_BUILTIN).load_icon ()
+		return gtk.icon_theme_get_default().choose_icon (self.info.get_icon().get_property ("names") + ["unknown"], 48,  gtk.ICON_LOOKUP_USE_BUILTIN).load_icon ()
 
 	def  get_size (self):
 		amount = self.info.get_size ()
@@ -124,7 +110,7 @@ class File:
 		return False
 
 	def get_mime_type (self):
-		return gnomevfs.get_mime_type(gnomevfs.make_uri_from_input(self.path))
+		return gio.content_type_guess(self.path)
 
 
 ( COLUMN_ICON,
@@ -219,16 +205,12 @@ class FileVersionWindow:
 		gtk.main_quit ()
 		
 	def on_current_file_button_clicked (self, widget):
-		application = gnomevfs.mime_get_default_application (gnomevfs.get_mime_type(gnomevfs.make_uri_from_input(self.filename)))
-		if application:
-			subprocess.Popen (str.split (application[2]) + [self.filename])
+		subprocess.Popen (["gio", "open", self.filename])
 
 	def on_treeview_row_activated (self, treeview, path, column):
 		(model, iter) = treeview.get_selection ().get_selected ()
 		filename = model.get (iter, 1)[0]
-		application = gnomevfs.mime_get_default_application (gnomevfs.get_mime_type(gnomevfs.make_uri_from_input(filename)))
-		if application:
-			subprocess.Popen (str.split (application[2]) + [filename])
+		subprocess.Popen (["gio", "open", filename])
 
 	def on_treeview_cursor_changed (self, treeview):
 		if not self.button_init:
