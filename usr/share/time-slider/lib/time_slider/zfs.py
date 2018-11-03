@@ -235,7 +235,8 @@ class Datasets(Exception):
                                     (str(cmd), err, errdata)
             for line in outdata.rstrip().split('\n'):
                 line = line.rstrip().split()
-                Datasets.filesystems.append([line[0], line[1]])
+                if len(outdata) > 1:
+                    Datasets.filesystems.append([line[0], line[1]])
         Datasets._filesystemslock.release()
 
         if pattern == None:
