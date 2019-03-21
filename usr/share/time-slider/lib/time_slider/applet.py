@@ -72,8 +72,6 @@ class Note:
         self._icon.set_blinking(False)
 
     def _show_notification(self):
-        if self._icon.is_embedded() == True:
-            self._note.attach_to_status_icon(self._icon)
         self._note.show()
         return False
 
