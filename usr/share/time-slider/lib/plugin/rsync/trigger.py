@@ -80,7 +80,7 @@ def main(argv):
     # First: identify all snapshots matching the AUTOSNAP_LABEL
     # value passed in by the time-slider daemon.
     #
-	# Second: Filter out snapshots of volumes, since rsync can only
+    # Second: Filter out snapshots of volumes, since rsync can only
     # back up filesystems.
     #
     # Third: we need to filter the results and ensure that the

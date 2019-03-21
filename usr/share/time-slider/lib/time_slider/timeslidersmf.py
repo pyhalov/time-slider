@@ -133,7 +133,7 @@ class TimeSliderSMF(smf.SMFInstance):
            self.period == other.period:
             return True
         return False
-	
+
     def __str__(self):
         ret = "SMF Instance:\n" +\
               "\tName:\t\t\t%s\n" % (self.instanceName) +\
@@ -149,6 +149,6 @@ class TimeSliderSMF(smf.SMFInstance):
 
 
 if __name__ == "__main__":
-  S = TimeSliderSMF('svc:/application/time-slider')
-  print S
+    S = TimeSliderSMF('svc:/application/time-slider')
+    print S
 

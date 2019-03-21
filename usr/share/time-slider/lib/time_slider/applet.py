@@ -428,13 +428,13 @@ class RsyncNote(Note):
         cmdPath = os.path.join(os.path.dirname(sys.argv[0]), \
                                "time-slider/plugins/rsync/rsync-backup")
         if os.geteuid() == 0:
-	  cmd = [cmdPath, \
-		 "%s:rsync" % (plugin.PLUGINBASEFMRI)]
-	else:
-	  cmd = ['/usr/bin/gksu' ,cmdPath, \
-		 "%s:rsync" % (plugin.PLUGINBASEFMRI)]
+            cmd = [cmdPath, \
+                   "%s:rsync" % (plugin.PLUGINBASEFMRI)]
+        else:
+            cmd = ['/usr/bin/gksu' ,cmdPath, \
+                   "%s:rsync" % (plugin.PLUGINBASEFMRI)]
 
-	subprocess.Popen(cmd, close_fds=True, cwd="/")
+        subprocess.Popen(cmd, close_fds=True, cwd="/")
 
 
 class CleanupNote(Note):

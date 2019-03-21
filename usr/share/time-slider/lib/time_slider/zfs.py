@@ -709,7 +709,7 @@ class Snapshot(ReadableDataset):
         for line in outdata.rstrip().split('\n'):
             if re.search("@%s" % (self.snaplabel), line) and \
                 line != self.name:
-                    result.append(line)
+                result.append(line)
         return result
 
     def has_clones(self):
@@ -852,8 +852,8 @@ class ReadWritableDataset(ReadableDataset):
             cmd.append("-r")
         cmd.append("%s@%s" % (self.name, snaplabel))
         outdata,errdata = util.run_command(cmd, False)
-	if errdata:
-	  print errdata
+        if errdata:
+            print errdata
         self.datasets.refresh_snapshots()
 
     def list_children(self):

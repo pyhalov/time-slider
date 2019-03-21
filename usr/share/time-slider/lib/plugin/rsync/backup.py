@@ -1214,9 +1214,9 @@ def main(argv):
     # to obtain an exclusive lock on it. If we can't then another 
     # instance is running and already has a lock on it so just exit.
     lockFileDir = os.path.normpath(tempfile.gettempdir() + '/' + \
-    							".time-slider")
+                                                     ".time-slider")
     if not os.path.exists(lockFileDir):
-            os.makedirs(lockFileDir, 0755)
+        os.makedirs(lockFileDir, 0755)
     lockFile = os.path.join(lockFileDir, 'rsync-backup.lock')
 
     lockFp = open(lockFile, 'w')

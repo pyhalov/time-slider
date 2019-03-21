@@ -197,10 +197,10 @@ class SetupManager:
         del filesystems
 
         for fsname in self._initialSnapStateDic:
-                self._refine_filesys_actions(fsname,
+            self._refine_filesys_actions(fsname,
                                               self._initialSnapStateDic,
                                               self._initialFsIntentDic)
-                self._refine_filesys_actions(fsname,
+            self._refine_filesys_actions(fsname,
                                               self._initialRsyncStateDic,
                                               self._initialRsyncIntentDic)
    
@@ -287,7 +287,7 @@ class SetupManager:
         # Force selection of currently configured device
         self._rsync_dev_selected(self._newRsyncTargetDir)
 
-        # signal dictionary	
+        # signal dictionary
         dic = {"on_ok_clicked" : self._on_ok_clicked,
                "on_cancel_clicked" : gtk.main_quit,
                "on_snapshotmanager_delete_event" : gtk.main_quit,
@@ -1004,7 +1004,7 @@ class SetupManager:
                                                   self._rsyncIntentDic)
             if self._rsyncEnabled and \
                not self._check_rsync_config():
-                    return
+                return
 
             self._pulseDialog.show()
             self._enabler = EnableService(self)
@@ -1035,7 +1035,7 @@ class SetupManager:
             self._xml.get_widget("fstreeview").set_sensitive(False)
 
     def _on_selectfsradio_toggled(self, widget):
-       if widget.get_active() == True:
+        if widget.get_active() == True:
             self._xml.get_widget("fstreeview").set_sensitive(True)
 
     def _advancedbox_unmap(self, widget):
