@@ -233,9 +233,9 @@ class Datasets(Exception):
                 Datasets._filesystemslock.release()
                 raise RuntimeError, '%s failed with exit code %d\n%s' % \
                                     (str(cmd), err, errdata)
-            for line in outdata.rstrip().split('\n'):
-                line = line.rstrip().split()
-                if len(outdata) > 1:
+            if len(outdata) > 1:
+                for line in outdata.rstrip().split('\n'):
+                    line = line.rstrip().split()
                     Datasets.filesystems.append([line[0], line[1]])
         Datasets._filesystemslock.release()
 
