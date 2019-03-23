@@ -75,95 +75,94 @@ class SnapshotNowDialog:
         self.dialog = self.xml.get_widget("dialog")
         self.dir_label = self.xml.get_widget("dir_label")
         self.snap_name_entry = self.xml.get_widget("snapshot_name_entry")
-	# signal dictionary	
+        # signal dictionary
         dic = {"on_closebutton_clicked" : gtk.main_quit,
                "on_window_delete_event" : gtk.main_quit,
                "on_cancel_clicked" : gtk.main_quit,
                "on_ok_clicked" : self.__on_ok_clicked}
         self.xml.signal_autoconnect(dic)
 
-	self.snap_name_entry.connect("activate", self.__on_entry_activate, 0)
+        self.snap_name_entry.connect("activate", self.__on_entry_activate, 0)
 
-	self.dir_label.set_text(self.dir_path)
-	self.snap_name_entry.set_text("my-snapshot-%s" % datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M:%S"))
+        self.dir_label.set_text(self.dir_path)
+        self.snap_name_entry.set_text("my-snapshot-%s" % datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M:%S"))
 
-	self.dialog.show ()
+        self.dialog.show ()
 
     def validate_name (self, name, showErrorDialog=False):
-	#check name validity
-	# from http://src.opensolaris.org/source/xref/onnv/onnv-gate/usr/src/common/zfs/zfs_namecheck.c#dataset_namecheck
-	# http://src.opensolaris.org/source/xref/onnv/onnv-gate/usr/src/common/zfs/zfs_namecheck.c#valid_char
+        #check name validity
+        # from http://src.opensolaris.org/source/xref/onnv/onnv-gate/usr/src/common/zfs/zfs_namecheck.c#dataset_namecheck
+        # http://src.opensolaris.org/source/xref/onnv/onnv-gate/usr/src/common/zfs/zfs_namecheck.c#valid_char
 
-	invalid = False
-	_validchars = string.ascii_letters + string.digits + \
-		      "-_.:"
-	_allchars = string.maketrans("", "")
-	_invalidchars = _allchars.translate(_allchars, _validchars)
+        invalid = False
+        _validchars = string.ascii_letters + string.digits + \
+            "-_.:"
+        _allchars = string.maketrans("", "")
+        _invalidchars = _allchars.translate(_allchars, _validchars)
   
-	valid_name = ""
+        valid_name = ""
 
-	for c in name:
-	  if c not in _invalidchars:
-	    valid_name = valid_name + c
-	  else:
-	    invalid = True
+        for c in name:
+            if c not in _invalidchars:
+                valid_name = valid_name + c
+            else:
+                invalid = True
 
-	if invalid and showErrorDialog:
-	  dialog = gtk.MessageDialog(None,
-				     0,
-				     gtk.MESSAGE_ERROR,
-				     gtk.BUTTONS_CLOSE,
-				     _("Invalid characters in snapshot name"))
-	  dialog.set_title (_("Error"))
-	  dialog.format_secondary_text(_("Allowed characters for snapshot names are :\n"
-					 "[a-z][A-Z][0-9][-_.:\n"
-					 "All invalid characters will be removed\n"))
-	  dialog.run ()					 
-	  dialog.destroy ()
-	return valid_name
-	
+        if invalid and showErrorDialog:
+            dialog = gtk.MessageDialog(None,
+                            0,
+                            gtk.MESSAGE_ERROR,
+                            gtk.BUTTONS_CLOSE,
+                            _("Invalid characters in snapshot name"))
+            dialog.set_title (_("Error"))
+            dialog.format_secondary_text(_("Allowed characters for snapshot names are :\n"
+                            "[a-z][A-Z][0-9][-_.:\n"
+                            "All invalid characters will be removed\n"))
+            dialog.run ()
+            dialog.destroy ()
+        return valid_name
+
 
     def __on_entry_activate (self, widget, none):
-	self.snap_name_entry.set_text (self.validate_name (self.snap_name_entry.get_text(), True))
-	return
-	
+        self.snap_name_entry.set_text (self.validate_name (self.snap_name_entry.get_text(), True))
+        return
+
 
     def __on_ok_clicked (self, widget):
-      name = self.snap_name_entry.get_text()
-      valid_name = self.validate_name (name, True)
-      if name == valid_name:
-	cmd = "pfexec /usr/sbin/zfs snapshot %s@%s" % (self.zfs_fs, self.validate_name (self.snap_name_entry.get_text()))
-	fin,fout,ferr = os.popen3(cmd)
-        # Check for any error output generated and
-        # return it to caller if so.
-        error = ferr.read()
-	self.dialog.hide ()
-        if len(error) > 0:
-	  dialog = gtk.MessageDialog(None,
-				     0,
-				     gtk.MESSAGE_ERROR,
-				     gtk.BUTTONS_CLOSE,
-				     _("Error occured while creating the snapshot"))
-	  dialog.set_title (_("Error"))
-	  dialog.format_secondary_text(error)
-	  dialog.run ()
-	  sys.exit(1)
+        name = self.snap_name_entry.get_text()
+        valid_name = self.validate_name (name, True)
+        if name == valid_name:
+            cmd = "pfexec /usr/sbin/zfs snapshot %s@%s" % (self.zfs_fs, self.validate_name (self.snap_name_entry.get_text()))
+            fin,fout,ferr = os.popen3(cmd)
+            # Check for any error output generated and
+            # return it to caller if so.
+            error = ferr.read()
+            self.dialog.hide ()
+            if len(error) > 0:
+                dialog = gtk.MessageDialog(None,
+                              0,
+                              gtk.MESSAGE_ERROR,
+                              gtk.BUTTONS_CLOSE,
+                              _("Error occured while creating the snapshot"))
+                dialog.set_title (_("Error"))
+                dialog.format_secondary_text(error)
+                dialog.run ()
+                sys.exit(1)
+            else:
+                dialog = gtk.MessageDialog(None,
+                              0,
+                              gtk.MESSAGE_INFO,
+                              gtk.BUTTONS_CLOSE,
+                              _("Snapshot created successfully"))
+                dialog.set_title (_("Success"))
+                dialog.format_secondary_text(_("A snapshot of zfs filesystem %(zfs_fs)s\n"
+                              "named %(valid_name)s\n"
+                              "has been created.\n") %
+                              { "zfs_fs" : self.zfs_fs, "valid_name" : valid_name})
+                dialog.run ()
+                sys.exit(0)
         else:
-	  dialog = gtk.MessageDialog(None,
-				     0,
-				     gtk.MESSAGE_INFO,
-				     gtk.BUTTONS_CLOSE,
-				     _("Snapshot created successfully"))
-	  dialog.set_title (_("Success"))
-	  dialog.format_secondary_text(_("A snapshot of zfs filesystem %(zfs_fs)s\n"
-				       "named %(valid_name)s\n"
-				       "has been created.\n") %
-				       { "zfs_fs" : self.zfs_fs, "valid_name" : valid_name})
-	  dialog.run ()
-	  sys.exit(0)
-
-      else:
-	self.snap_name_entry.set_text (valid_name)
+            self.snap_name_entry.set_text (valid_name)
 
 def main(argv):
     try:
@@ -178,15 +177,15 @@ def main(argv):
                                    gtk.MESSAGE_ERROR,
                                    gtk.BUTTONS_CLOSE,
                                    _("Invalid arguments count."))
-	dialog.set_title (_("Error"))
+        dialog.set_title (_("Error"))
         dialog.format_secondary_text(_("Snapshot Now requires"
-                                       " 2 arguments :\n- The path of the "
-				       "directory to be snapshotted.\n"
-                                       "- The zfs filesystem corresponding "
-				       "to this directory."))
+                                    " 2 arguments :\n- The path of the "
+                                    "directory to be snapshotted.\n"
+                                    "- The zfs filesystem corresponding "
+                                    "to this directory."))
         dialog.run()
-	sys.exit (2)
-	
+        sys.exit (2)
+
     rbacp = RBACprofile()
     # The user security attributes checked are the following:
     # 1. The "Primary Administrator" role
@@ -197,7 +196,7 @@ def main(argv):
     # Note that an effective UID=0 will match any profile search so
     # no need to check it explicitly.
     if rbacp.has_profile("ZFS File System Management"):
-	manager = SnapshotNowDialog(args[0],args[1])
+        manager = SnapshotNowDialog(args[0],args[1])
         gtk.main()
     elif os.path.exists(argv) and os.path.exists("/usr/bin/gksu"):
         # Run via gksu, which will prompt for the root password
@@ -213,7 +212,7 @@ def main(argv):
                                    gtk.MESSAGE_ERROR,
                                    gtk.BUTTONS_CLOSE,
                                    _("Insufficient Priviliges"))
-	dialog.set_title (_("Error"))
+        dialog.set_title (_("Error"))
         dialog.format_secondary_text(_("Snapshot Now requires "
                                        "administrative privileges to run. "
                                        "You have not been assigned the necessary"
