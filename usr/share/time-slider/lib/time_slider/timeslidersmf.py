@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.5
 #
 # CDDL HEADER START
 #
@@ -150,5 +150,5 @@ class TimeSliderSMF(smf.SMFInstance):
 
 if __name__ == "__main__":
     S = TimeSliderSMF('svc:/application/time-slider')
-    print S
+    print(S)
 

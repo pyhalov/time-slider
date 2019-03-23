@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.5
 #
 # CDDL HEADER START
 #
@@ -219,6 +219,6 @@ def main(argv):
                                        "administrative priviliges."
                                        "\n\nConsult your system administrator "))
         dialog.run()
-        print argv + "is not a valid executable path"
+        print(argv + " is not a valid executable path")
         sys.exit(1)
 

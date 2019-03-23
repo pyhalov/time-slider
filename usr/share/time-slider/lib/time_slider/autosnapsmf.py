@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.5
 #
 # CDDL HEADER START
 #
@@ -166,5 +166,5 @@ if __name__ == "__main__":
     defaults = get_default_schedules()
     for sched in defaults:
         S = AutoSnap(sched[0])
-        print S.get_schedule_details()
+        print(S.get_schedule_details())
 

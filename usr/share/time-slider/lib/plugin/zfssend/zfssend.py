@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.5
 #
 # CDDL HEADER START
 #
@@ -30,7 +30,6 @@ from time_slider import util, smf, zfs
 
 verboseprop = "plugin/verbose"
 propbasename = "org.opensolaris:time-slider-plugin"
-print _("Do I work?")
 
 def main(argv):
 

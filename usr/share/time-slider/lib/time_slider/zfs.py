@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.5
 #
 # CDDL HEADER START
 #
@@ -853,7 +853,7 @@ class ReadWritableDataset(ReadableDataset):
         cmd.append("%s@%s" % (self.name, snaplabel))
         outdata,errdata = util.run_command(cmd, False)
         if errdata:
-            print errdata
+            print(errdata)
         self.datasets.refresh_snapshots()
 
     def list_children(self):
@@ -1025,20 +1025,19 @@ def list_zpools():
 if __name__ == "__main__":
     for zpool in list_zpools():
         pool = ZPool(zpool)
-        print pool
+        print(pool)
         for filesys,mountpoint in pool.list_filesystems():
             fs = Filesystem(filesys, mountpoint)
-            print fs
-            print "\tSnapshots:"
+            print(fs)
+            print("\tSnapshots:")
             for snapshot, snaptime in fs.list_snapshots():
                 snap = Snapshot(snapshot, snaptime)
-                print "\t\t" + snap.name
+                print("\t\t" + snap.name)
 
         for volname in pool.list_volumes():
             vol = Volume(volname)
-            print vol
-            print "\tSnapshots:"
+            print(vol)
+            print("\tSnapshots:")
             for snapshot, snaptime in vol.list_snapshots():
                 snap = Snapshot(snapshot, snaptime)
-                print "\t\t" + snap.name
-
+                print("\t\t" + snap.name)
