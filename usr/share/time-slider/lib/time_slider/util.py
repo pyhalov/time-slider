@@ -42,12 +42,12 @@ def run_command(command, raise_on_try=True):
                              close_fds=True)
         outdata,errdata = p.communicate()
         err = p.wait()
-    except OSError, message:
-        raise RuntimeError, "%s subprocess error:\n %s" % \
-                            (command, str(message))
+    except OSError as message:
+        raise RuntimeError("%s subprocess error:\n %s" % \
+                            (command, str(message)))
     if err != 0 and raise_on_try:
-        raise RuntimeError, '%s failed with exit code %d\n%s' % \
-                            (str(command), err, errdata)
+        raise RuntimeError('%s failed with exit code %d\n%s' % \
+                            (str(command), err, errdata))
     return outdata,errdata
 
 def debug(message, verbose):

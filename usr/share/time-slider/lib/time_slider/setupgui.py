@@ -310,7 +310,7 @@ class SetupManager:
         # Initialise SMF service instance state.
         try:
             self._sliderSMF = TimeSliderSMF()
-        except RuntimeError,message:
+        except RuntimeError as message:
             self._xml.get_widget("toplevel").set_sensitive(False)
             dialog = gtk.MessageDialog(self._xml.get_widget("toplevel"),
                                        0,
@@ -1187,9 +1187,9 @@ class SetupManager:
                                           rsyncsmf.RSYNCCONFIGFILE)
                 newKey = generate_random_key()
                 try:
-                    origmask = os.umask(0222)
+                    origmask = os.umask(0o222)
                     if not os.path.exists(nodePath):
-                        os.makedirs(nodePath, 0755)
+                        os.makedirs(nodePath, 0o755)
                     f = open(configPath, 'w')
                     f.write("target_key=%s\n" % (newKey))
                     f.close()
@@ -1268,7 +1268,7 @@ class EnableService(threading.Thread):
             self._setupManager.setup_rsync_config()
             self._setupManager.setup_services()
             self._setupManager.broadcast_changes()
-        except RuntimeError, message:
+        except RuntimeError as message:
             sys.stderr.write(str(message))
 
 def generate_random_key(length=32):

@@ -125,7 +125,7 @@ def main(argv):
     # Check to see if the receive command is accessible and executable
     try:
         statinfo = os.stat(recvcmd[0])
-        other_x = (statinfo.st_mode & 01)
+        other_x = (statinfo.st_mode & 0o1)
         if other_x == 0:
             log_error(syslog.LOG_ERR,
                       "Plugin: %s: Configured receive/command is not " \
@@ -195,13 +195,13 @@ def main(argv):
             senderrno = sendP.wait()
 
             if senderrno != 0:
-                raise RuntimeError, "Send command: %s failed with exit code" \
+                raise RuntimeError("Send command: %s failed with exit code" \
                                     "%d. Error message: \n%s" \
-                                    % (str(sendcmd), senderrno, senderr)
+                                    % (str(sendcmd), senderrno, senderr))
             if recverrno != 0:
-                raise RuntimeError, "Receive command %s failed with exit " \
+                raise RuntimeError("Receive command %s failed with exit " \
                                     "code %d. Error message: \n%s" \
-                                    % (str(recvcmd), recverrno, recverr)
+                                    % (str(recvcmd), recverrno, recverr))
 
             if prevsnapname != None:
                 util.debug("Releasing hold on %s" % (prevsnapname), verbose)
@@ -210,7 +210,7 @@ def main(argv):
                       % (prevsnapname),
                       verbose)
                 snapshot.release(propname)
-        except Exception, message:
+        except Exception as message:
             log_error(syslog.LOG_ERR,
                       "Error during snapshot send/receive operation: %s" \
                       % (message))

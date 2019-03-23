@@ -133,22 +133,20 @@ class RsyncBackup:
                              rsyncsmf.RSYNCLOCKSUFFIX)
 
         if not os.path.exists(lockFileDir):
-            os.makedirs(lockFileDir, 0755)
+            os.makedirs(lockFileDir, 0o755)
 
         lockFile = os.path.join(lockFileDir, self.snaplabel + ".lock")
         try:
             lockFp = open(lockFile, 'w')
             fcntl.flock(lockFp, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError:
-            raise RuntimeError, \
-            "couldn't delete %s, already used by another process" % self.mountpoint
-            return
+            raise RuntimeError("couldn't delete %s, already used by another process" % self.mountpoint)
 
         trashDir = os.path.join(self.rsync_dir,
                           self.fsname,
                           rsyncsmf.RSYNCTRASHSUFFIX)
         if not os.path.exists(trashDir):
-            os.makedirs(trashDir, 0755)
+            os.makedirs(trashDir, 0o755)
 
         backupTrashDir = os.path.join (self.rsync_dir,
                                  self.fsname,
@@ -711,7 +709,7 @@ class DeleteSnapshots(threading.Thread):
             if backup.exists():
                 try:
                     backup.destroy ()
-                except RuntimeError, inst:
+                except RuntimeError as inst:
                     self.errors.append(str(inst))
             deleted += 1
             self.progress = deleted / (total * 1.0)

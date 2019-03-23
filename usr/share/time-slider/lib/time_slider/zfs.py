@@ -226,13 +226,13 @@ class Datasets(Exception):
                                      close_fds=True)
                 outdata,errdata = p.communicate()
                 err = p.wait()
-            except OSError, message:
-                raise RuntimeError, "%s subprocess error:\n %s" % \
-                                    (cmd, str(message))
+            except OSError as message:
+                raise RuntimeError("%s subprocess error:\n %s" % \
+                                    (cmd, str(message)))
             if err != 0:
                 Datasets._filesystemslock.release()
-                raise RuntimeError, '%s failed with exit code %d\n%s' % \
-                                    (str(cmd), err, errdata)
+                raise RuntimeError('%s failed with exit code %d\n%s' % \
+                                    (str(cmd), err, errdata))
             if len(outdata) > 1:
                 for line in outdata.rstrip().split('\n'):
                     line = line.rstrip().split()
@@ -272,13 +272,13 @@ class Datasets(Exception):
                                      close_fds=True)
                 outdata,errdata = p.communicate()
                 err = p.wait()
-            except OSError, message:
-                raise RuntimeError, "%s subprocess error:\n %s" % \
-                                    (cmd, str(message))
+            except OSError as message:
+                raise RuntimeError("%s subprocess error:\n %s" % \
+                                    (cmd, str(message)))
             if err != 0:
                 Datasets._volumeslock.release()
-                raise RuntimeError, '%s failed with exit code %d\n%s' % \
-                                    (str(cmd), err, errdata)
+                raise RuntimeError('%s failed with exit code %d\n%s' % \
+                                    (str(cmd), err, errdata))
             for line in outdata.rstrip().split('\n'):
                 Datasets.volumes.append(line.rstrip())
         Datasets._volumeslock.release()
@@ -317,14 +317,14 @@ class Datasets(Exception):
                                      close_fds=True)
                 outdata,errdata = p.communicate()
                 err= p.wait()
-            except OSError, message:
+            except OSError as message:
                 Datasets.snapshotslock.release()
-                raise RuntimeError, "%s subprocess error:\n %s" % \
-                                    (cmd, str(message))
+                raise RuntimeError("%s subprocess error:\n %s" % \
+                                    (cmd, str(message)))
             if err != 0:
                 Datasets.snapshotslock.release()
-                raise RuntimeError, '%s failed with exit code %d\n%s' % \
-                                    (str(cmd), err, errdata)
+                raise RuntimeError('%s failed with exit code %d\n%s' % \
+                                    (str(cmd), err, errdata))
             for dataset in outdata.rstrip().split('\n'):
                 if re.search("@", dataset):
                     insort(snaps, dataset.split())
@@ -624,9 +624,9 @@ class ReadableDataset:
                                  close_fds=True)
             outdata,errdata = p.communicate()
             err = p.wait()
-        except OSError, message:
-            raise RuntimeError, "%s subprocess error:\n %s" % \
-                            (command, str(message))
+        except OSError as message:
+            raise RuntimeError("%s subprocess error:\n %s" % \
+                            (command, str(message)))
         if err != 0:
             # Doesn't exist
             return False

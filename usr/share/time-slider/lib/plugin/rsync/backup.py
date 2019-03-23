@@ -598,7 +598,7 @@ class BackupQueue():
             lockFile = os.path.join(lockFileDir, tail)
 
             if not os.path.exists(lockFileDir):
-                os.makedirs(lockFileDir, 0755)
+                os.makedirs(lockFileDir, 0o755)
             try:
                 lockFp = open(lockFile, 'w')
                 fcntl.flock(lockFp, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -619,7 +619,7 @@ class BackupQueue():
             trashDir = os.path.join(trash, tail)
 
             if not os.path.exists(trash):
-                os.makedirs(trash, 0755)
+                os.makedirs(trash, 0o755)
 
             util.debug("Deleting rsync backup to recover space: %s"\
                 % (dirName), self._verbose)
@@ -834,12 +834,12 @@ class BackupQueue():
         dirList = []
 
         if not os.path.exists(partialDir):
-            os.makedirs(partialDir, 0755)
+            os.makedirs(partialDir, 0o755)
         if not os.path.exists(logDir):
-            os.makedirs(logDir, 0755)
+            os.makedirs(logDir, 0o755)
 
         if not os.path.exists(targetDir):
-            os.makedirs(targetDir, 0755)
+            os.makedirs(targetDir, 0o755)
             # Add the new directory to our internal
             # mtime dictionary and sorted list.
             self._backupTimes[targetDir] = {}
@@ -875,7 +875,7 @@ class BackupQueue():
                                     link + ".lock")
 
             if not os.path.exists(lockFileDir):
-                os.makedirs(lockFileDir, 0755)
+                os.makedirs(lockFileDir, 0o755)
 
             try:
                 lockFp = open(lockFile, 'w')
@@ -901,7 +901,7 @@ class BackupQueue():
         # Set umask temporarily so that rsync backups are read-only to
         # the owner by default. Rync will override this to match the
         # permissions of each snapshot as appropriate.
-        origmask = os.umask(0222)
+        origmask = os.umask(0o222)
         util.debug("Starting rsync backup of '%s' to: %s" \
                    % (sourceDir, partialDir),
                    self._verbose)
@@ -1026,7 +1026,7 @@ class BackupQueue():
                                  snapshot.fsname,
                                  rsyncsmf.RSYNCTRASHSUFFIX)
             if not os.path.exists(trash):
-                os.makedirs(trash, 0755)
+                os.makedirs(trash, 0o755)
             for mtime,dirName in purgeList:
                 trashDir = os.path.join(trash,
                                         dirName)
@@ -1041,7 +1041,7 @@ class BackupQueue():
                                             dirName + ".lock")
 
                     if not os.path.exists(lockFileDir):
-                        os.makedirs(lockFileDir, 0755)
+                        os.makedirs(lockFileDir, 0o755)
 
                     try:
                         lockFp = open(lockFile, 'w')
@@ -1216,7 +1216,7 @@ def main(argv):
     lockFileDir = os.path.normpath(tempfile.gettempdir() + '/' + \
                                                      ".time-slider")
     if not os.path.exists(lockFileDir):
-        os.makedirs(lockFileDir, 0755)
+        os.makedirs(lockFileDir, 0o755)
     lockFile = os.path.join(lockFileDir, 'rsync-backup.lock')
 
     lockFp = open(lockFile, 'w')
