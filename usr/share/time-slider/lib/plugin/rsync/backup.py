@@ -26,7 +26,6 @@ import fcntl
 import tempfile
 import sys
 import subprocess
-import statvfs
 import time
 import threading
 import math
