@@ -639,5 +639,5 @@ def main(argv):
         print("Exiting")
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 
