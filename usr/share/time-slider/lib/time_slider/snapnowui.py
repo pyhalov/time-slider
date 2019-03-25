@@ -88,13 +88,11 @@ class SnapshotNowDialog:
         invalid = False
         _validchars = string.ascii_letters + string.digits + \
             "-_.:"
-        _allchars = string.maketrans("", "")
-        _invalidchars = _allchars.translate(_allchars, _validchars)
   
         valid_name = ""
 
         for c in name:
-            if c not in _invalidchars:
+            if c in _validchars:
                 valid_name = valid_name + c
             else:
                 invalid = True
