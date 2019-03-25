@@ -223,7 +223,8 @@ class Datasets(Exception):
                 p = subprocess.Popen(cmd,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     universal_newlines=True)
                 outdata,errdata = p.communicate()
                 err = p.wait()
             except OSError as message:
@@ -269,7 +270,8 @@ class Datasets(Exception):
                 p = subprocess.Popen(cmd,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     universal_newlines=True)
                 outdata,errdata = p.communicate()
                 err = p.wait()
             except OSError as message:
@@ -314,7 +316,8 @@ class Datasets(Exception):
                 p = subprocess.Popen(cmd,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     universal_newlines=True)
                 outdata,errdata = p.communicate()
                 err= p.wait()
             except OSError as message:
@@ -621,7 +624,8 @@ class ReadableDataset:
             p = subprocess.Popen(cmd,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
-                                 close_fds=True)
+                                 close_fds=True,
+                                 universal_newlines=True)
             outdata,errdata = p.communicate()
             err = p.wait()
         except OSError as message:

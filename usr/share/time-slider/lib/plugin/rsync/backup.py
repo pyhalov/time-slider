@@ -118,7 +118,8 @@ class RsyncProcess(threading.Thread):
         try:
             self._proc = subprocess.Popen(self._cmd,
                                           stderr=subprocess.PIPE,
-                                          close_fds=True)
+                                          close_fds=True,
+                                          universal_newlines=True)
         except OSError as e:
             # _check_exit_code() will pick up this and raise an
             # exception in the original thread.

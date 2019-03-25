@@ -183,11 +183,13 @@ def main(argv):
             sendP = subprocess.Popen(sendcmd,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     universal_newlines=True)
             recvP = subprocess.Popen(recvcmd,
                                      stdin=sendP.stdout,
                                      stderr=subprocess.PIPE,
-                                     close_fds=True)
+                                     close_fds=True,
+                                     universal_newlines=True)
 
             recvout,recverr = recvP.communicate()
             recverrno = recvP.wait()

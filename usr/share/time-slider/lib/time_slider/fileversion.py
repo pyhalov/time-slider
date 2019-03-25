@@ -231,8 +231,8 @@ class FileVersionWindow:
                 dialog.run ()
                 dialog.destroy ()
                 self.meld_hint_displayed = True
-            p1 = subprocess.Popen(["/usr/bin/diff", "-u", self.filename, filename], stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(str.split ("/usr/bin/zenity --text-info --editable"), stdin=p1.stdout, stdout=subprocess.PIPE)
+            p1 = subprocess.Popen(["/usr/bin/diff", "-u", self.filename, filename], stdout=subprocess.PIPE, universal_newlines=True)
+            p2 = subprocess.Popen(str.split ("/usr/bin/zenity --text-info --editable"), stdin=p1.stdout, stdout=subprocess.PIPE, universal_newlines=True)
 
 
 class VersionScanner(threading.Thread):

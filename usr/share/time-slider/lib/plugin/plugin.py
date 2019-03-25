@@ -95,7 +95,8 @@ class Plugin(Exception):
             self._proc = subprocess.Popen(cmd,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE,
-                                          close_fds=True)
+                                          close_fds=True,
+                                          universal_newlines=True)
         except OSError as message:
             raise RuntimeError("%s subprocess error:\n %s" % \
                                 (cmd, str(message)))
@@ -137,7 +138,8 @@ class PluginManager():
         p = subprocess.Popen(cmd,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
-                             close_fds=True)
+                             close_fds=True,
+                             universal_newlines=True)
         outdata,errdata = p.communicate()
         err = p.wait()
         if err != 0:

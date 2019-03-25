@@ -37,7 +37,8 @@ def run_command(command, raise_on_try=True):
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
-                             close_fds=True)
+                             close_fds=True,
+                             universal_newlines=True)
         outdata,errdata = p.communicate()
         err = p.wait()
     except OSError as message:
