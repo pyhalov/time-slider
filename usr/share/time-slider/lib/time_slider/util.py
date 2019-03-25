@@ -24,7 +24,6 @@ import os
 import subprocess
 import sys
 import syslog
-import statvfs
 import math
 import gio
 
@@ -78,8 +77,8 @@ def get_filesystem_capacity(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
 
-    unavailBlocks = f[statvfs.F_BLOCKS] - f[statvfs.F_BAVAIL]
-    capacity = int(math.ceil(100 * (unavailBlocks / float(f[statvfs.F_BLOCKS]))))
+    unavailBlocks = f.f_blocks - f.f_bavail
+    capacity = int(math.ceil(100 * (unavailBlocks / float(f.f_blocks))))
 
     return capacity
 
@@ -88,7 +87,7 @@ def get_available_size(path):
     if not os.path.exists(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
-    free = long(f[statvfs.F_BAVAIL] * f[statvfs.F_FRSIZE])
+    free = long(f.f_bavail * f.f_frsize)
     
     return free
 
@@ -99,8 +98,8 @@ def get_used_size(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
 
-    unavailBlocks = f[statvfs.F_BLOCKS] - f[statvfs.F_BAVAIL]
-    used = long(unavailBlocks * f[statvfs.F_FRSIZE])
+    unavailBlocks = f.f_blocks - f.f_bavail
+    used = long(unavailBlocks * f.f_frsize)
 
     return used
 
@@ -110,7 +109,7 @@ def get_total_size(path):
     if not os.path.exists(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
-    total = long(f[statvfs.F_BLOCKS] * f[statvfs.F_FRSIZE])
+    total = long(f.f_blocks * f.f_frsize)
 
     return total
 
