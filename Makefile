@@ -89,8 +89,9 @@ install:
 	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/glade
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/glade usr/share/time-slider/glade/time-slider-delete.glade
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/glade usr/share/time-slider/glade/time-slider-setup.glade
-	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/glade usr/share/time-slider/glade/time-slider-snapshot.glade
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/glade usr/share/time-slider/glade/time-slider-version.glade
+	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/ui
+	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/ui usr/share/time-slider/ui/time-slider-snapshot.ui
 	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/lib/time_slider
 	for file in usr/share/time-slider/lib/time_slider/*.py; do \
 		if test -f $$file ; then \

@@ -27,19 +27,9 @@ import getopt
 import string
 
 try:
-    import pygtk
-    pygtk.require("2.4")
-except:
-    pass
-try:
-    import gtk
-    import gtk.glade
-    gtk.gdk.threads_init()
-except:
-    sys.exit(1)
-try:
-    import glib
-    import gobject
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk
 except:
     sys.exit(1)
 
@@ -58,10 +48,6 @@ RESOURCE_PATH = os.path.join(SHARED_FILES, 'res')
 # application name is a good idea tough.
 GETTEXT_DOMAIN = 'time-slider'
 
-# set up the glade gettext system and locales
-gtk.glade.bindtextdomain(GETTEXT_DOMAIN, LOCALE_PATH)
-gtk.glade.textdomain(GETTEXT_DOMAIN)
-
 import zfs
 from rbac import RBACprofile
 
@@ -70,17 +56,22 @@ class SnapshotNowDialog:
     def __init__(self, dir_path, zfs_fs):
         self.dir_path = dir_path
         self.zfs_fs = zfs_fs
-        self.xml = gtk.glade.XML("%s/../../glade/time-slider-snapshot.glade" \
+        self.builder = Gtk.Builder()
+
+        self.builder.set_translation_domain(GETTEXT_DOMAIN)
+
+        self.builder.add_from_file("%s/../../ui/time-slider-snapshot.ui" \
                                   % (os.path.dirname(__file__)))
-        self.dialog = self.xml.get_widget("dialog")
-        self.dir_label = self.xml.get_widget("dir_label")
-        self.snap_name_entry = self.xml.get_widget("snapshot_name_entry")
+        self.dialog = self.builder.get_object("dialog")
+        self.dir_label = self.builder.get_object("dir_label")
+        self.snap_name_entry = self.builder.get_object("snapshot_name_entry")
         # signal dictionary
-        dic = {"on_closebutton_clicked" : gtk.main_quit,
-               "on_window_delete_event" : gtk.main_quit,
-               "on_cancel_clicked" : gtk.main_quit,
+        dic = {"on_closebutton_clicked" : Gtk.main_quit,
+               "on_window_delete_event" : Gtk.main_quit,
+               "on_cancel_clicked" : Gtk.main_quit,
                "on_ok_clicked" : self.__on_ok_clicked}
-        self.xml.signal_autoconnect(dic)
+        self.builder.connect_signals(dic)
+
 
         self.snap_name_entry.connect("activate", self.__on_entry_activate, 0)
 
@@ -109,10 +100,10 @@ class SnapshotNowDialog:
                 invalid = True
 
         if invalid and showErrorDialog:
-            dialog = gtk.MessageDialog(None,
+            dialog = Gtk.MessageDialog(None,
                             0,
-                            gtk.MESSAGE_ERROR,
-                            gtk.BUTTONS_CLOSE,
+                            Gtk.MessageType.ERROR,
+                            Gtk.ButtonsType.CLOSE,
                             _("Invalid characters in snapshot name"))
             dialog.set_title (_("Error"))
             dialog.format_secondary_text(_("Allowed characters for snapshot names are :\n"
@@ -139,20 +130,20 @@ class SnapshotNowDialog:
             error = ferr.read()
             self.dialog.hide ()
             if len(error) > 0:
-                dialog = gtk.MessageDialog(None,
+                dialog = Gtk.MessageDialog(None,
                               0,
-                              gtk.MESSAGE_ERROR,
-                              gtk.BUTTONS_CLOSE,
+                              Gtk.MessageType.ERROR,
+                              Gtk.ButtonsType.CLOSE,
                               _("Error occured while creating the snapshot"))
                 dialog.set_title (_("Error"))
                 dialog.format_secondary_text(error)
                 dialog.run ()
                 sys.exit(1)
             else:
-                dialog = gtk.MessageDialog(None,
+                dialog = Gtk.MessageDialog(None,
                               0,
-                              gtk.MESSAGE_INFO,
-                              gtk.BUTTONS_CLOSE,
+                              Gtk.MessageType.INFO,
+                              Gtk.ButtonsType.CLOSE,
                               _("Snapshot created successfully"))
                 dialog.set_title (_("Success"))
                 dialog.format_secondary_text(_("A snapshot of zfs filesystem %(zfs_fs)s\n"
@@ -172,10 +163,10 @@ def main(argv):
     #FIXME
     #check for 2 args here we assume the arguments are correct
     if len(args) != 2:
-        dialog = gtk.MessageDialog(None,
+        dialog = Gtk.MessageDialog(None,
                                    0,
-                                   gtk.MESSAGE_ERROR,
-                                   gtk.BUTTONS_CLOSE,
+                                   Gtk.MessageType.ERROR,
+                                   Gtk.ButtonsType.CLOSE,
                                    _("Invalid arguments count."))
         dialog.set_title (_("Error"))
         dialog.format_secondary_text(_("Snapshot Now requires"
@@ -197,7 +188,7 @@ def main(argv):
     # no need to check it explicitly.
     if rbacp.has_profile("ZFS File System Management"):
         manager = SnapshotNowDialog(args[0],args[1])
-        gtk.main()
+        Gtk.main()
     elif os.path.exists(argv) and os.path.exists("/usr/bin/gksu"):
         # Run via gksu, which will prompt for the root password
         newargs = ["gksu", argv]
@@ -207,10 +198,10 @@ def main(argv):
         # Shouldn't reach this point
         sys.exit(1)
     else:
-        dialog = gtk.MessageDialog(None,
+        dialog = Gtk.MessageDialog(None,
                                    0,
-                                   gtk.MESSAGE_ERROR,
-                                   gtk.BUTTONS_CLOSE,
+                                   Gtk.MessageType.ERROR,
+                                   Gtk.ButtonsType.CLOSE,
                                    _("Insufficient Priviliges"))
         dialog.set_title (_("Error"))
         dialog.format_secondary_text(_("Snapshot Now requires "
@@ -222,3 +213,5 @@ def main(argv):
         print(argv + " is not a valid executable path")
         sys.exit(1)
 
+if __name__ == "__main__":
+    main(sys.argv[1:])

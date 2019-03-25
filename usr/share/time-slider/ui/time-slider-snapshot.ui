@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
+<?xml version="1.0"?>
 <!--Generated with glade3 3.4.5 on Fri Jan  9 16:35:14 2009 -->
-<glade-interface>
-  <widget class="GtkDialog" id="dialog">
+<interface>
+  <object class="GtkDialog" id="dialog">
     <property name="width_request">400</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Take a snapshot now</property>
@@ -11,24 +10,24 @@
     <property name="destroy_with_parent">True</property>
     <property name="icon_name">time-slider-setup</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-    <signal name="delete_event" handler="on_window_delete_event"/>
+    <signal handler="on_window_delete_event" name="delete_event"/>
     <child internal-child="vbox">
-      <widget class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
         <property name="spacing">2</property>
         <child>
-          <widget class="GtkHBox" id="hbox1">
+          <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
             <property name="spacing">2</property>
             <child>
-              <widget class="GtkImage" id="image1">
+              <object class="GtkImage" id="image1">
                 <property name="visible">True</property>
                 <property name="stock">gtk-dialog-question</property>
                 <property name="icon_size">6</property>
-              </widget>
+              </object>
             </child>
             <child>
-              <widget class="GtkTable" id="table2">
+              <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
                 <property name="n_rows">3</property>
                 <property name="n_columns">2</property>
@@ -36,10 +35,10 @@
                   <placeholder/>
                 </child>
                 <child>
-                  <widget class="GtkEntry" id="snapshot_name_entry">
+                  <object class="GtkEntry" id="snapshot_name_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="right_attach">2</property>
                     <property name="top_attach">2</property>
@@ -47,32 +46,32 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="dir_label">
+                  <object class="GtkLabel" id="dir_label">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="label2">
+                  <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Take a snapshot of </property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
                     <property name="y_options">GTK_FILL</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="label3">
+                  <object class="GtkLabel" id="label3">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">with the name :</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
@@ -80,53 +79,55 @@
                     <property name="y_options">GTK_FILL</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="padding">3</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child internal-child="action_area">
-          <widget class="GtkHButtonBox" id="dialog-action_area2">
+          <object class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
             <property name="layout_style">GTK_BUTTONBOX_END</property>
             <child>
-              <widget class="GtkButton" id="confirm_cancel">
+              <object class="GtkButton" id="confirm_cancel">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label">gtk-cancel</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
-                <signal name="clicked" handler="on_cancel_clicked"/>
-              </widget>
+                <signal handler="on_cancel_clicked" name="clicked"/>
+              </object>
             </child>
             <child>
-              <widget class="GtkButton" id="confirm_snapshot">
+              <object class="GtkButton" id="confirm_snapshot">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label">gtk-ok</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
-                <signal name="clicked" handler="on_ok_clicked"/>
-              </widget>
+                <signal handler="on_ok_clicked" name="clicked"/>
+              </object>
               <packing>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="pack_type">GTK_PACK_END</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-</glade-interface>
+    <action-widgets>
+      <action-widget response="0">confirm_cancel</action-widget>
+      <action-widget response="0">confirm_snapshot</action-widget>
+    </action-widgets>
+  </object>
+</interface>
