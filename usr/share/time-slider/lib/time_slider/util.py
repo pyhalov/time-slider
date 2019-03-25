@@ -1,5 +1,4 @@
 #!/usr/bin/python3.5
-#
 # CDDL HEADER START
 #
 # The contents of this file are subject to the terms of the
@@ -25,7 +24,7 @@ import subprocess
 import sys
 import syslog
 import math
-import gio
+from gi.repository import Gio, GLib
 
 def run_command(command, raise_on_try=True):
     """
@@ -121,10 +120,10 @@ def path_to_volume(path):
        If it fails to find an enclosing volume it returns
        None
     """
-    gFile = gio.File(path)
+    gFile = Gio.File.new_for_path(path)
     try:
         mount = gFile.find_enclosing_mount()
-    except gio.Error:
+    except GLib.Error:
         return None
     else:
         if mount != None:
