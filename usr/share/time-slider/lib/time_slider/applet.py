@@ -24,16 +24,19 @@ import sys
 import os
 import subprocess
 import threading
-import gobject
 import dbus
 import dbus.decorators
 import dbus.glib
 import dbus.mainloop
 import dbus.mainloop.glib
-import gio
-import gtk
-import pygtk
-import pynotify
+import notify2
+
+try:
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk, GObject
+except:
+    sys.exit(1)
 
 from time_slider import util, rbac
 
@@ -61,8 +64,8 @@ class Note:
             # Don't popup an empty menu
             if len(self._menu.get_children()) > 0:
                 self._menu.popup(None, None,
-                                 gtk.status_icon_position_menu,
-                                 button, time, icon)
+                                 Gtk.StatusIcon.position_menu, icon,
+                                 button, time)
 
     def _dialog_response(self, dialog, response):
         dialog.destroy()
@@ -93,7 +96,7 @@ class Note:
         else:
             iconList = ['gnome-dev-harddisk']
 
-        iconTheme = gtk.icon_theme_get_default()
+        iconTheme = Gtk.icon_theme_get_default()
         iconInfo = iconTheme.choose_icon(iconList, 48, 0)
         pixbuf = iconInfo.load_icon()
 
@@ -128,7 +131,7 @@ class RsyncNote(Note):
         # Use this variable to keep track of it's running status.
         self._scriptRunning = False
         self._targetDirAvail = False
-        self._syncNowItem = gtk.MenuItem(_("Update Backups Now"))
+        self._syncNowItem = Gtk.MenuItem(_("Update Backups Now"))
         self._syncNowItem.set_sensitive(False)
         self._syncNowItem.connect("activate",
                                   self._sync_now)
@@ -310,7 +313,7 @@ class RsyncNote(Note):
         self._lock.release()
 
     def _rsync_started_handler(self, target, sender=None, interface=None, path=None):
-        urgency = pynotify.URGENCY_NORMAL
+        urgency = notify2.URGENCY_NORMAL
         if (self._note != None):
             self._note.close()
         # Try to pretty things up a bit by displaying volume name
@@ -324,7 +327,7 @@ class RsyncNote(Note):
             volName = volume.get_name()
             icon = volume.get_icon()
                       
-        self._note = pynotify.Notification(_("Backup Started"),
+        self._note = notify2.Notification(_("Backup Started"),
                                            _("Backing up snapshots to:\n<b>%s</b>\n" \
                                            "Do not disconnect the backup device.") \
                                             % (volName))
@@ -332,7 +335,7 @@ class RsyncNote(Note):
                            self._notification_closed)
         self._note.set_urgency(urgency)
         self._setup_icon_for_note(icon)
-        gobject.idle_add(self._show_notification)
+        GObject.idle_add(self._show_notification)
 
     def _rsync_current_handler(self, snapshot, remaining, sender=None, interface=None, path=None):
         self._icon.set_tooltip_markup(_("Backing up: <b>\'%s\'\n%d</b> snapshots remaining.\n" \
@@ -340,7 +343,7 @@ class RsyncNote(Note):
                                       % (snapshot, remaining))
 
     def _rsync_complete_handler(self, target, sender=None, interface=None, path=None):
-        urgency = pynotify.URGENCY_NORMAL
+        urgency = notify2.URGENCY_NORMAL
         if (self._note != None):
             self._note.close()
         # Try to pretty things up a bit by displaying volume name
@@ -354,7 +357,7 @@ class RsyncNote(Note):
             volName = volume.get_name()
             icon = volume.get_icon()
 
-        self._note = pynotify.Notification(_("Backup Complete"),
+        self._note = notify2.Notification(_("Backup Complete"),
                                            _("Your snapshots have been backed up to:\n<b>%s</b>") \
                                            % (volName))
         self._note.connect("closed", \
@@ -363,7 +366,7 @@ class RsyncNote(Note):
         self._setup_icon_for_note(icon)
         self._icon.set_has_tooltip(False)
         self.queueSize = 0
-        gobject.idle_add(self._show_notification)
+        GObject.idle_add(self._show_notification)
 
     def _rsync_synced_handler(self, sender=None, interface=None, path=None):
         self._icon.set_tooltip_markup(_("Your backups are up to date."))
@@ -450,8 +453,8 @@ class CleanupNote(Note):
     def _show_cleanup_details(self, *args):
         # We could keep a dialog around but this a rare
         # enough event that's it not worth the effort.
-        dialog = gtk.MessageDialog(type=gtk.MESSAGE_WARNING,
-                                   buttons=gtk.BUTTONS_CLOSE)
+        dialog = Gtk.MessageDialog(type=Gtk.MessageType.WARNING,
+                                   buttons=Gtk.ButtonsType.CLOSE)
         dialog.set_title(_("Time Slider: Low Space Warning"))
         dialog.set_markup("<b>%s</b>" % (self._cleanupHead))
         dialog.format_secondary_markup(self._cleanupBody)
@@ -461,8 +464,8 @@ class CleanupNote(Note):
 
     def _cleanup_handler(self, pool, severity, threshhold, sender=None, interface=None, path=None):
         if severity == 4:
-            expiry = pynotify.EXPIRES_NEVER
-            urgency = pynotify.URGENCY_CRITICAL
+            expiry = notify2.EXPIRES_NEVER
+            urgency = notify2.URGENCY_CRITICAL
             self._cleanupHead = _("Emergency: \'%s\' is full!") % pool
             notifyBody = _("The file system: \'%s\', is over %s%% full.") \
                             % (pool, threshhold)
@@ -473,8 +476,8 @@ class CleanupNote(Note):
                      "disk space (see ZFS documentation).") \
                       % (pool, threshhold, pool)
         elif severity == 3:
-            expiry = pynotify.EXPIRES_NEVER
-            urgency = pynotify.URGENCY_CRITICAL
+            expiry = notify2.EXPIRES_NEVER
+            urgency = notify2.URGENCY_CRITICAL
             self._cleanupHead = _("Emergency: \'%s\' is almost full!") % pool
             notifyBody = _("The file system: \'%s\', exceeded %s%% "
                            "of its total capacity") \
@@ -488,8 +491,8 @@ class CleanupNote(Note):
                      "space (see ZFS documentation).") \
                       % (pool, threshhold, pool)
         elif severity == 2:
-            expiry = pynotify.EXPIRES_NEVER
-            urgency = pynotify.URGENCY_CRITICAL
+            expiry = notify2.EXPIRES_NEVER
+            urgency = notify2.URGENCY_CRITICAL
             self._cleanupHead = _("Urgent: \'%s\' is almost full!") % pool
             notifyBody = _("The file system: \'%s\', exceeded %s%% "
                            "of its total capacity") \
@@ -504,7 +507,7 @@ class CleanupNote(Note):
                      % (pool, threshhold, pool)
         elif severity == 1:
             expiry = 20000 # 20 seconds
-            urgency = pynotify.URGENCY_NORMAL
+            urgency = notify2.URGENCY_NORMAL
             self._cleanupHead = _("Warning: \'%s\' is getting full") % pool
             notifyBody = _("The file system: \'%s\', exceeded %s%% "
                            "of its total capacity") \
@@ -522,7 +525,7 @@ class CleanupNote(Note):
 
         if (self._note != None):
             self._note.close()
-        self._note = pynotify.Notification(self._cleanupHead,
+        self._note = notify2.Notification(self._cleanupHead,
                                            notifyBody)
         self._note.add_action("clicked",
                               _("Details..."),
@@ -533,7 +536,7 @@ class CleanupNote(Note):
         self._note.set_timeout(expiry)
         self._setup_icon_for_note()
         self._icon.set_blinking(True)
-        gobject.idle_add(self._show_notification)
+        GObject.idle_add(self._show_notification)
 
     def _connect_to_object(self):
         try:
@@ -562,7 +565,7 @@ class SetupNote(Note):
         self._manager = manager
         self._icon = icon
         self._menu = menu
-        self._configSvcItem = gtk.MenuItem(_("Configure Time Slider..."))
+        self._configSvcItem = Gtk.MenuItem(_("Configure Time Slider..."))
         self._configSvcItem.connect("activate",
                                     self._run_config_app)
         self._configSvcItem.set_sensitive(True)
@@ -609,8 +612,8 @@ class NoteManager():
         # Notification objects need to share a common
         # status icon and popup menu so these are created
         # outside the object and passed to the constructor
-        self._menu = gtk.Menu()
-        self._icon = gtk.StatusIcon()
+        self._menu = Gtk.Menu()
+        self._icon = Gtk.StatusIcon()
         self._icon.set_from_icon_name("time-slider-setup")
         self._setupNote = SetupNote(self._icon,
                                     self._menu,
@@ -626,10 +629,9 @@ class NoteManager():
 bus = dbus.SystemBus()
 
 def main(argv):
-    mainloop = gobject.MainLoop()
+    mainloop = GObject.MainLoop()
     dbus.mainloop.glib.DBusGMainLoop(set_as_default = True)
-    gobject.threads_init()
-    pynotify.init(_("Time Slider"))
+    notify2.init(_("Time Slider"))
 
     noteManager = NoteManager()
 
