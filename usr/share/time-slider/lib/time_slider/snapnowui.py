@@ -25,6 +25,7 @@ import os
 import datetime
 import getopt
 import string
+import subprocess
 
 try:
     import gi
@@ -118,15 +119,27 @@ class SnapshotNowDialog:
 
 
     def __on_ok_clicked (self, widget):
+        err = 0
+        error = ""
         name = self.snap_name_entry.get_text()
         valid_name = self.validate_name (name, True)
         if name == valid_name:
-            cmd = "pfexec /usr/sbin/zfs snapshot %s@%s" % (self.zfs_fs, self.validate_name (self.snap_name_entry.get_text()))
-            fin,fout,ferr = os.popen3(cmd)
-            # Check for any error output generated and
-            # return it to caller if so.
-            error = ferr.read()
-            self.dialog.hide ()
+            snap_name = "%s@%s" % (self.zfs_fs, self.validate_name (self.snap_name_entry.get_text()))
+            cmd = [ "pfexec", "/usr/sbin/zfs", "snapshot", snap_name ]
+            try:
+                p = subprocess.Popen(cmd,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     close_fds=True,
+                                     universal_newlines=True)
+                outdata,errdata = p.communicate()
+                err = p.wait()
+            except OSError as message:
+                error = str(message)
+           
+            if (err != 0):
+                error = errdata 
+
             if len(error) > 0:
                 dialog = Gtk.MessageDialog(None,
                               0,
