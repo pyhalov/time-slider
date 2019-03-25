@@ -24,9 +24,9 @@ import sys
 import os
 import subprocess
 import threading
-import util
-import smf
-from autosnapsmf import enable_default_schedules, disable_default_schedules
+from time_slider import util
+from time_slider import smf
+from time_slider.autosnapsmf import enable_default_schedules, disable_default_schedules
 
 from os.path import abspath, dirname, join, pardir
 sys.path.insert(0, join(dirname(__file__), pardir, "plugin"))

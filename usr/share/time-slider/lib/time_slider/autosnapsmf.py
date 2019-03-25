@@ -21,8 +21,8 @@
 #
 
 import threading
-import smf
-import util
+from time_slider import smf
+from time_slider import util
 
 factoryDefaultSchedules = ("monthly", "weekly", "daily", "hourly", "frequent")
 

@@ -39,14 +39,14 @@ import dbus.service
 import dbus.mainloop
 import dbus.mainloop.glib
 
-import dbussvc
-import zfs
-import smf
-import timeslidersmf
-import autosnapsmf
-import plugin
-from rbac import RBACprofile
-import util
+from time_slider import dbussvc
+from time_slider import zfs
+from time_slider import smf
+from time_slider import timeslidersmf
+from time_slider import autosnapsmf
+from time_slider import plugin
+from time_slider.rbac import RBACprofile
+from time_slider import util
 
 _MINUTE = 60
 _HOUR = _MINUTE * 60

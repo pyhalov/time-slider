@@ -23,7 +23,7 @@
 import os
 import pwd
 
-import util
+from time_slider import util
 
 class RBACprofile:
 

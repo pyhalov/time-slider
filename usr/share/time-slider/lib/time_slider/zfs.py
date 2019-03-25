@@ -25,7 +25,7 @@ import re
 import threading
 from bisect import insort, bisect_left, bisect_right
 
-import util
+from time_slider import util
 
 BYTESPERMB = 1048576
 

@@ -22,8 +22,8 @@
 
 import subprocess
 import threading
-import smf
-import util
+from time_slider import smf
+from time_slider import util
 
 #SMF EXIT CODES
 SMF_EXIT_OK          = 0
