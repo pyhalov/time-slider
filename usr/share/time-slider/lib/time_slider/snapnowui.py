@@ -49,8 +49,8 @@ RESOURCE_PATH = os.path.join(SHARED_FILES, 'res')
 # application name is a good idea tough.
 GETTEXT_DOMAIN = 'time-slider'
 
-import zfs
-from rbac import RBACprofile
+from time_slider import zfs
+from time_slider.rbac import RBACprofile
 
 class SnapshotNowDialog:
 

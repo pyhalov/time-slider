@@ -44,7 +44,7 @@ from time_slider import zfs
 from time_slider import smf
 from time_slider import timeslidersmf
 from time_slider import autosnapsmf
-from time_slider import plugin
+import plugin
 from time_slider.rbac import RBACprofile
 from time_slider import util
 
