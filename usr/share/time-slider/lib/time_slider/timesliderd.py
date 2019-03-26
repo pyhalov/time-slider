@@ -32,8 +32,12 @@ import datetime
 import calendar
 import signal
 
-import glib
-import gobject
+try:
+    import gi
+    from gi.repository import GObject
+except:
+    sys.exit(1)
+
 import dbus
 import dbus.service
 import dbus.mainloop
@@ -945,8 +949,6 @@ def main(argv):
     rbacp = RBACprofile()
     if rbacp.has_profile("ZFS File System Management"):
 
-        gobject.threads_init()
-
         # Tell dbus to use the gobject mainloop for async ops
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         dbus.mainloop.glib.threads_init()
@@ -958,9 +960,9 @@ def main(argv):
         # auto snapshotting service and auto cleanup.
         snapshot = SnapshotManager(systemBus)
         snapshot.start()
-        gobject.timeout_add(2000, monitor_threads, snapshot)
+        GObject.timeout_add(2000, monitor_threads, snapshot)
 
-        mainloop = gobject.MainLoop()
+        mainloop = GObject.MainLoop()
         try:
             mainloop.run()
         except KeyboardInterrupt:
