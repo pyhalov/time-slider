@@ -332,7 +332,7 @@ class Datasets(Exception):
                 if re.search("@", dataset):
                     insort(snaps, dataset.split())
             for snap in snaps:
-                Datasets.snapshots.append([snap[1], long(snap[0])])
+                Datasets.snapshots.append([snap[1], int(snap[0])])
         if pattern == None:
             snapshots = Datasets.snapshots[:]
         else:
@@ -609,7 +609,7 @@ class ReadableDataset:
             cmd = [ZFSCMD, "get", "-H", "-p", "-o", "value", "creation",
                    self.name]
             outdata,errdata = util.run_command(cmd)
-            self.__creationTime = long(outdata.rstrip())
+            self.__creationTime = int(outdata.rstrip())
         return self.__creationTime
 
     def exists(self):
@@ -644,7 +644,7 @@ class ReadableDataset:
     def get_used_size(self):
         cmd = [ZFSCMD, "get", "-H", "-p", "-o", "value", "used", self.name]
         outdata,errdata = util.run_command(cmd)
-        return long(outdata.rstrip())
+        return int(outdata.rstrip())
 
     def get_user_property(self, prop, local=False):
         if local == True:
@@ -701,7 +701,7 @@ class Snapshot(ReadableDataset):
                "-o", "value", "referenced", \
                self.name]
         outdata,errdata = util.run_command(cmd)
-        return long(outdata.rstrip())
+        return int(outdata.rstrip())
 
     def list_children(self):
         """Returns a recursive list of child snapshots of this snapshot"""
@@ -835,7 +835,7 @@ class ReadWritableDataset(ReadableDataset):
         cmd = [ZFSCMD, "get", "-H", "-p", "-o", "value", "available", \
                self.name]
         outdata,errdata = util.run_command(cmd)
-        return long(outdata.rstrip())
+        return int(outdata.rstrip())
 
     def create_snapshot(self, snaplabel, recursive = False):
         """

@@ -154,7 +154,7 @@ class SnapshotManager(threading.Thread):
                     util.debug("Waiting until " + str (nexttime), self.verbose)
                 waittime = None
                 if nexttime != None:
-                    waittime = nexttime - long(time.time())
+                    waittime = nexttime - int(time.time())
                     if (waittime <= 0):
                         # We took too long and missed a snapshot, so break out
                         # and catch up on it the next time through the loop
@@ -415,7 +415,7 @@ class SnapshotManager(threading.Thread):
     def _next_due(self):
         schedule = None
         earliest = None
-        now = long(time.time())
+        now = int(time.time())
         
         for s,i,p,k in self._defaultSchedules:
             due = self._next[s]
@@ -449,7 +449,7 @@ class SnapshotManager(threading.Thread):
         self._refreshLock.acquire()
         next,schedule = self._next_due()
         self._refreshLock.release()
-        now = long(time.time())
+        now = int(time.time())
         while next != None and next <= now:
             label = self._take_snapshots(schedule)
             self._plugin.execute_plugins(schedule, label)
@@ -466,7 +466,7 @@ class SnapshotManager(threading.Thread):
     def _take_snapshots(self, schedule):
         # Set the time before taking snapshot to avoid clock skew due
         # to time taken to complete snapshot.
-        tm = long(time.time())
+        tm = int(time.time())
         label = "%s%s%s-%s" % \
                 (autosnapsmf.SNAPLABELPREFIX, self._separator, schedule,
                  datetime.datetime.now().strftime("%Y-%m-%d-%Hh%M"))
@@ -596,7 +596,7 @@ class SnapshotManager(threading.Thread):
             # Sys admin has explicitly instructed for remedial cleanups
             # not to be performed.
             return False
-        now = long(time.time())
+        now = int(time.time())
         # Don't run checks any less than 15 minutes apart.
         if self._cleanupLock.acquire(False) == False:
             #Indicates that a cleanup is already running.
@@ -630,7 +630,7 @@ class SnapshotManager(threading.Thread):
                     self.exitCode = smf.SMF_EXIT_ERR_FATAL
                     # Propogate up to thread's run() mehod.
                     raise RuntimeError(message)
-            self._lastCleanupCheck = long(time.time())
+            self._lastCleanupCheck = int(time.time())
         self._cleanupLock.release()
         return False
 

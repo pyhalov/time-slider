@@ -87,7 +87,7 @@ def get_available_size(path):
     if not os.path.exists(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
-    free = long(f.f_bavail * f.f_frsize)
+    free = int(f.f_bavail * f.f_frsize)
     
     return free
 
@@ -99,7 +99,7 @@ def get_used_size(path):
     f = os.statvfs(path)
 
     unavailBlocks = f.f_blocks - f.f_bavail
-    used = long(unavailBlocks * f.f_frsize)
+    used = int(unavailBlocks * f.f_frsize)
 
     return used
 
@@ -109,7 +109,7 @@ def get_total_size(path):
     if not os.path.exists(path):
         raise ValueError("%s is a non-existent path" % path)
     f = os.statvfs(path)
-    total = long(f.f_blocks * f.f_frsize)
+    total = int(f.f_blocks * f.f_frsize)
 
     return total
 

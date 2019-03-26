@@ -205,7 +205,7 @@ class DeleteSnapManager:
     def initialise_view(self):
         if len(self.shortcircuit) == 0:
             # Set TreeViews
-            self.liststorefs = gtk.ListStore(str, str, str, str, str, long,
+            self.liststorefs = gtk.ListStore(str, str, str, str, str, int,
                                              gobject.TYPE_PYOBJECT)
             list_filter = self.liststorefs.filter_new()
             list_sort = gtk.TreeModelSort(list_filter)

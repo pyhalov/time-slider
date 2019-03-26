@@ -407,7 +407,7 @@ class BackupQueue():
                         not os.path.islink(d)]
             for d in dirList:
                 mtime = os.stat(d).st_mtime
-                insort(self._backups, [long(mtime), os.path.abspath(d)])
+                insort(self._backups, [int(mtime), os.path.abspath(d)])
                 self._backupTimes[dirName][d] = mtime
 
     def _find_backup_device(self):
@@ -762,7 +762,7 @@ class BackupQueue():
             self._bus.rsync_started(self._rsyncBaseDir)
 
         ctime,snapName = self._currentQueueSet[0]
-        snapshot = zfs.Snapshot(snapName, long(ctime))
+        snapshot = zfs.Snapshot(snapName, int(ctime))
         # Make sure the snapshot didn't get destroyed since we last
         # checked it.
         remainingList = self._currentQueueSet[1:]
@@ -976,10 +976,10 @@ class BackupQueue():
         # they match the snapshot creation time. This is extremely important
         # because the backup mechanism relies on it to determine backup times
         # and nearest matches for incremental rsync (linkDest)
-        os.utime(backupDir, (long(ctime), long(ctime)))
+        os.utime(backupDir, (int(ctime), int(ctime)))
         # Update the dictionary and time sorted list with ctime also
-        self._backupTimes[targetDir][snapshot.snaplabel] = long(ctime)
-        insort(self._backups, [long(ctime), os.path.abspath(backupDir)]) 
+        self._backupTimes[targetDir][snapshot.snaplabel] = int(ctime)
+        insort(self._backups, [int(ctime), os.path.abspath(backupDir)]) 
         snapshot.set_user_property(self._propName, "completed")
         snapshot.release(self._propName)
         self._currentQueueSet = remainingList
@@ -1194,7 +1194,7 @@ def list_pending_snapshots(propName):
     outdata,errdata = util.run_command(cmd)
     for line in outdata.rstrip().split('\n'):
         ctimeStr,name = line.split()
-        insort(sortsnaplist, tuple((long(ctimeStr), name)))
+        insort(sortsnaplist, tuple((int(ctimeStr), name)))
     sortsnaplist.reverse()
     return sortsnaplist
 
