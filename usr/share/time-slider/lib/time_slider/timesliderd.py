@@ -386,7 +386,7 @@ class SnapshotManager(threading.Thread):
                 snap_tm = time.gmtime(self._last[schedule])
                 # Increment year if period >= than 1 calender year.
                 year = snap_tm.tm_year
-                year += period / 12
+                year += int(period / 12)
                 period = period % 12
 
                 mon = (snap_tm.tm_mon + period) % 12
