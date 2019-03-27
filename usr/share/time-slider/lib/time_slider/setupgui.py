@@ -24,9 +24,13 @@ import sys
 import os
 import subprocess
 import threading
+from time_slider import dbussvc
 from time_slider import util
 from time_slider import smf
 from time_slider.autosnapsmf import enable_default_schedules, disable_default_schedules
+from time_slider import zfs
+from time_slider.timeslidersmf import TimeSliderSMF
+from time_slider.rbac import RBACprofile
 
 from os.path import abspath, dirname, join, pardir
 sys.path.insert(0, join(dirname(__file__), pardir, "plugin"))
@@ -35,25 +39,16 @@ sys.path.insert(0, join(dirname(__file__), pardir, "plugin", "rsync"))
 import rsyncsmf
 
 try:
-    import pygtk
-    pygtk.require("2.4")
-except:
-    pass
-try:
-    import gtk
-    import gtk.glade
-    gtk.gdk.threads_init()
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk, GObject, Gio, GLib, GdkPixbuf
 except:
     sys.exit(1)
 
-import glib
-import gobject
-import gio
 import dbus
 import dbus.service
 import dbus.mainloop
 import dbus.mainloop.glib
-import dbussvc
 
 
 # This is the rough guess ratio used for rsync backup device size
@@ -74,15 +69,6 @@ RESOURCE_PATH = os.path.join(SHARED_FILES, 'res')
 # not in a global folder this doesn't really matter, setting it to the
 # application name is a good idea tough.
 GETTEXT_DOMAIN = 'time-slider'
-
-# set up the glade gettext system and locales
-gtk.glade.bindtextdomain(GETTEXT_DOMAIN, LOCALE_PATH)
-gtk.glade.textdomain(GETTEXT_DOMAIN)
-
-import zfs
-from timeslidersmf import TimeSliderSMF
-from rbac import RBACprofile
-
 
 class FilesystemIntention:
 
@@ -115,7 +101,10 @@ class SetupManager:
     def __init__(self, execpath):
         self._execPath = execpath
         self._datasets = zfs.Datasets()
-        self._xml = gtk.glade.XML("%s/../../glade/time-slider-setup.glade" \
+        self._builder = Gtk.Builder()
+        self._builder.set_translation_domain(GETTEXT_DOMAIN)
+        
+        self._builder.add_from_file("%s/../../ui/time-slider-setup.ui" \
                                   % (os.path.dirname(__file__)))
 
         # Tell dbus to use the gobject mainloop for async ops
@@ -158,20 +147,20 @@ class SetupManager:
         # Dictionary that maps device ID numbers to zfs filesystem objects
         self._fsDevices = {}
 
-        topLevel = self._xml.get_widget("toplevel")
-        self._pulseDialog = self._xml.get_widget("pulsedialog")
+        topLevel = self._builder.get_object("toplevel")
+        self._pulseDialog = self._builder.get_object("pulsedialog")
         self._pulseDialog.set_transient_for(topLevel)
         
         # gio.VolumeMonitor reference
-        self._vm = gio.volume_monitor_get()
+        self._vm = Gio.VolumeMonitor.get()
         self._vm.connect("mount-added", self._mount_added)
         self._vm.connect("mount-removed" , self._mount_removed)
 
-        self._fsListStore = gtk.ListStore(bool,
+        self._fsListStore = Gtk.ListStore(bool,
                                          bool,
                                          str,
                                          str,
-                                         gobject.TYPE_PYOBJECT)
+                                         GObject.TYPE_PYOBJECT)
         filesystems = self._datasets.list_filesystems()
         for fsname,fsmountpoint in filesystems:
             if (fsmountpoint == "legacy"):
@@ -204,32 +193,32 @@ class SetupManager:
                                               self._initialRsyncStateDic,
                                               self._initialRsyncIntentDic)
    
-        self._fsTreeView = self._xml.get_widget("fstreeview")
+        self._fsTreeView = self._builder.get_object("fstreeview")
         self._fsTreeView.set_sensitive(False)
         self._fsTreeView.set_size_request(10, 200)
 
         self._fsTreeView.set_model(self._fsListStore)
 
-        cell0 = gtk.CellRendererToggle()
-        cell1 = gtk.CellRendererToggle()
-        cell2 = gtk.CellRendererText()
-        cell3 = gtk.CellRendererText()
+        cell0 = Gtk.CellRendererToggle()
+        cell1 = Gtk.CellRendererToggle()
+        cell2 = Gtk.CellRendererText()
+        cell3 = Gtk.CellRendererText()
  
-        radioColumn = gtk.TreeViewColumn(_("Select"),
+        radioColumn = Gtk.TreeViewColumn(_("Select"),
                                              cell0, active=0)
         self._fsTreeView.insert_column(radioColumn, 0)
 
-        self._rsyncRadioColumn = gtk.TreeViewColumn(_("Replicate"),
+        self._rsyncRadioColumn = Gtk.TreeViewColumn(_("Replicate"),
                                                     cell1, active=1)
-        nameColumn = gtk.TreeViewColumn(_("Mount Point"),
+        nameColumn = Gtk.TreeViewColumn(_("Mount Point"),
                                         cell2, text=2)
         self._fsTreeView.insert_column(nameColumn, 2)
-        mountPointColumn = gtk.TreeViewColumn(_("File System Name"),
+        mountPointColumn = Gtk.TreeViewColumn(_("File System Name"),
                                               cell3, text=3)
         self._fsTreeView.insert_column(mountPointColumn, 3)
         cell0.connect('toggled', self._row_toggled)
         cell1.connect('toggled', self._rsync_cell_toggled)
-        advancedBox = self._xml.get_widget("advancedbox")
+        advancedBox = self._builder.get_object("advancedbox")
         advancedBox.connect('unmap', self._advancedbox_unmap)  
 
         self._rsyncSMF = rsyncsmf.RsyncSMF("%s:rsync" \
@@ -250,12 +239,12 @@ class SetupManager:
         # 2 volume name
         # 3 Is gio.Mount device
         # 4 Is separator (for comboBox separator rendering)
-        self._rsyncStore = gtk.ListStore(gobject.TYPE_PYOBJECT,
-                                         gobject.TYPE_STRING,
-                                         gobject.TYPE_STRING,
-                                         gobject.TYPE_BOOLEAN,
-                                         gobject.TYPE_BOOLEAN)
-        self._rsyncCombo = self._xml.get_widget("rsyncdevcombo")
+        self._rsyncStore = Gtk.ListStore(GObject.TYPE_PYOBJECT,
+                                         GObject.TYPE_STRING,
+                                         GObject.TYPE_STRING,
+                                         GObject.TYPE_BOOLEAN,
+                                         GObject.TYPE_BOOLEAN)
+        self._rsyncCombo = self._builder.get_object("rsyncdevcombo")
         mounts = self._vm.get_mounts()
         for mount in mounts:
             self._mount_added(self._vm, mount)
@@ -273,14 +262,14 @@ class SetupManager:
             # Add a separator
             self._rsyncStore.append((None, None, None, None, True))
         self._rsyncStore.append((None, _("Other..."), "Other", False, False))
-        self._iconCell = gtk.CellRendererPixbuf()
-        self._nameCell = gtk.CellRendererText()
+        self._iconCell = Gtk.CellRendererPixbuf()
+        self._nameCell = Gtk.CellRendererText()
         self._rsyncCombo.clear()
         self._rsyncCombo.pack_start(self._iconCell, False)
         self._rsyncCombo.set_cell_data_func(self._iconCell,
                                             self._icon_cell_render)
-        self._rsyncCombo.pack_end(self._nameCell)
-        self._rsyncCombo.set_attributes(self._nameCell, text=1)
+        self._rsyncCombo.pack_end(self._nameCell, False)
+        self._rsyncCombo.add_attribute(self._nameCell, "text", 1)
         self._rsyncCombo.set_row_separator_func(self._row_separator)
         self._rsyncCombo.set_model(self._rsyncStore)
         self._rsyncCombo.connect("changed", self._rsync_combo_changed)
@@ -289,18 +278,18 @@ class SetupManager:
 
         # signal dictionary
         dic = {"on_ok_clicked" : self._on_ok_clicked,
-               "on_cancel_clicked" : gtk.main_quit,
-               "on_snapshotmanager_delete_event" : gtk.main_quit,
+               "on_cancel_clicked" : Gtk.main_quit,
+               "on_snapshotmanager_delete_event" : Gtk.main_quit,
                "on_enablebutton_toggled" : self._on_enablebutton_toggled,
                "on_rsyncbutton_toggled" : self._on_rsyncbutton_toggled,
                "on_defaultfsradio_toggled" : self._on_defaultfsradio_toggled,
                "on_selectfsradio_toggled" : self._on_selectfsradio_toggled,
                "on_deletesnapshots_clicked" : self._on_deletesnapshots_clicked}
-        self._xml.signal_autoconnect(dic)
+        self._builder.connect_signals(dic)
 
         if state != "disabled":
             self._rsyncEnabled = True
-            self._xml.get_widget("rsyncbutton").set_active(True)
+            self._builder.get_object("rsyncbutton").set_active(True)
             self._initialRsyncState = True
         else:
             self._rsyncEnabled = False
@@ -311,11 +300,11 @@ class SetupManager:
         try:
             self._sliderSMF = TimeSliderSMF()
         except RuntimeError as message:
-            self._xml.get_widget("toplevel").set_sensitive(False)
-            dialog = gtk.MessageDialog(self._xml.get_widget("toplevel"),
+            self._builder.get_object("toplevel").set_sensitive(False)
+            dialog = Gtk.MessageDialog(self._builder.get_object("toplevel"),
                                        0,
-                                       gtk.MESSAGE_ERROR,
-                                       gtk.BUTTONS_CLOSE,
+                                       Gtk.MessageType.ERROR,
+                                       Gtk.ButtonsType.CLOSE,
                                        _("Snapshot manager service error"))
             dialog.format_secondary_text(_("The snapshot manager service does "
                                          "not appear to be installed on this "
@@ -328,16 +317,16 @@ class SetupManager:
             sys.exit(1)
 
         if self._sliderSMF.svcstate == "disabled":
-            self._xml.get_widget("enablebutton").set_active(False)
+            self._builder.get_object("enablebutton").set_active(False)
             self._initialEnabledState = False
         elif self._sliderSMF.svcstate == "offline":
-            self._xml.get_widget("toplevel").set_sensitive(False)
+            self._builder.get_object("toplevel").set_sensitive(False)
             errors = ''.join("%s\n" % (error) for error in \
                 self._sliderSMF.find_dependency_errors())
-            dialog = gtk.MessageDialog(self._xml.get_widget("toplevel"),
+            dialog = Gtk.MessageDialog(self._builder.get_object("toplevel"),
                                         0,
-                                        gtk.MESSAGE_ERROR,
-                                        gtk.BUTTONS_CLOSE,
+                                        Gtk.MessageType.ERROR,
+                                        Gtk.ButtonsType.CLOSE,
                                         _("Snapshot manager service dependency error"))
             dialog.format_secondary_text(_("The snapshot manager service has "
                                             "been placed offline due to a dependency "
@@ -349,11 +338,11 @@ class SetupManager:
             dialog.run()
             sys.exit(1)
         elif self._sliderSMF.svcstate == "maintenance":
-            self._xml.get_widget("toplevel").set_sensitive(False)
-            dialog = gtk.MessageDialog(self._xml.get_widget("toplevel"),
+            self._builder.get_object("toplevel").set_sensitive(False)
+            dialog = Gtk.MessageDialog(self._builder.get_object("toplevel"),
                                         0,
-                                        gtk.MESSAGE_ERROR,
-                                        gtk.BUTTONS_CLOSE,
+                                        Gtk.MessageType.ERROR,
+                                        Gtk.ButtonsType.CLOSE,
                                         _("Snapshot manager service error"))
             dialog.format_secondary_text(_("The snapshot manager service has "
                                             "encountered a problem and has been "
@@ -365,25 +354,25 @@ class SetupManager:
             sys.exit(1)
         else:
             # FIXME: Check transitional states 
-            self._xml.get_widget("enablebutton").set_active(True)
+            self._builder.get_object("enablebutton").set_active(True)
             self._initialEnabledState = True
 
 
         # Emit a toggled signal so that the initial GUI state is consistent
-        self._xml.get_widget("enablebutton").emit("toggled")
+        self._builder.get_object("enablebutton").emit("toggled")
         # Check the snapshotting policy (UserData (default), or Custom)
         self._initialCustomSelection = self._sliderSMF.is_custom_selection()
         if self._initialCustomSelection == True:
-            self._xml.get_widget("selectfsradio").set_active(True)
+            self._builder.get_object("selectfsradio").set_active(True)
             # Show the advanced controls so the user can see the
             # customised configuration.
             if self._sliderSMF.svcstate != "disabled":
-                self._xml.get_widget("expander").set_expanded(True)
+                self._builder.get_object("expander").set_expanded(True)
         else: # "false" or any other non "true" value
-            self._xml.get_widget("defaultfsradio").set_active(True)
+            self._builder.get_object("defaultfsradio").set_active(True)
 
         # Set the cleanup threshhold value
-        spinButton = self._xml.get_widget("capspinbutton")
+        spinButton = self._builder.get_object("capspinbutton")
         critLevel = self._sliderSMF.get_cleanup_level("critical")
         warnLevel = self._sliderSMF.get_cleanup_level("warning")
 
@@ -400,7 +389,7 @@ class SetupManager:
     def _icon_cell_render(self, celllayout, cell, model, iter):
         iconList = self._rsyncStore.get_value(iter, 0)
         if iconList != None:
-            gicon = gio.ThemedIcon(iconList)
+            gicon = Gio.ThemedIcon.new_from_names(iconList)
             cell.set_property("gicon", gicon)
         else:
             root = self._rsyncStore.get_value(iter, 2)
@@ -496,7 +485,7 @@ class SetupManager:
             pulseBar.pulse()
             return True
         else:
-            gtk.main_quit()   
+            Gtk.main_quit()   
 
     def _row_toggled(self, renderer, path):
         model = self._fsTreeView.get_model()
@@ -520,11 +509,11 @@ class SetupManager:
                 self._fsListStore.set_value(iter, 1, False)
 
     def _rsync_config_error(self, msg):
-        topLevel = self._xml.get_widget("toplevel")
-        dialog = gtk.MessageDialog(topLevel,
+        topLevel = self._builder.get_object("toplevel")
+        dialog = Gtk.MessageDialog(topLevel,
                                     0,
-                                    gtk.MESSAGE_ERROR,
-                                    gtk.BUTTONS_CLOSE,
+                                    Gtk.MessageType.ERROR,
+                                    Gtk.ButtonsType.CLOSE,
                                     _("Unsuitable Backup Location"))
         dialog.format_secondary_text(msg)
         dialog.set_icon_name("time-slider-setup")
@@ -593,17 +582,17 @@ class SetupManager:
             else:
                 msg = _("Select A Back Up Device")
                 fileDialog = \
-                    gtk.FileChooserDialog(
+                    Gtk.FileChooserDialog(
                         msg,
-                        self._xml.get_widget("toplevel"),
-                        gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                        (gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
-                        gtk.STOCK_OK,gtk.RESPONSE_OK),
+                        self._builder.get_object("toplevel"),
+                        Gtk.FileChooserAction.SELECT_FOLDER,
+                        (Gtk.STOCK_CANCEL,Gtk.ResponseType.CANCEL,
+                        Gtk.STOCK_OK,Gtk.ResponseType.OK),
                         None)
                 self._rsyncCombo.set_sensitive(False)
                 response = fileDialog.run()
                 fileDialog.hide()
-                if response == gtk.RESPONSE_OK:
+                if response == Gtk.ResponseType.OK:
                     gFile = fileDialog.get_file()
                     self._rsync_dev_selected(gFile.get_path())
                 else:
@@ -640,20 +629,20 @@ class SetupManager:
                 "Do you want to use it anyway?") \
                 % (sizeStr, rsyncTarget, targetStr)
 
-        topLevel = self._xml.get_widget("toplevel")
-        dialog = gtk.MessageDialog(topLevel,
+        topLevel = self._builder.get_object("toplevel")
+        dialog = Gtk.MessageDialog(topLevel,
                                    0,
-                                   gtk.MESSAGE_QUESTION,
-                                   gtk.BUTTONS_YES_NO,
+                                   Gtk.MessageType.QUESTION,
+                                   Gtk.ButtonsType.YES_NO,
                                    _("Time Slider"))
-        dialog.set_default_response(gtk.RESPONSE_NO)
+        dialog.set_default_response(Gtk.ResponseType.NO)
         dialog.set_transient_for(topLevel)
         dialog.set_markup(msg)
         dialog.set_icon_name("time-slider-setup")
 
         response = dialog.run()
         dialog.hide()
-        if response == gtk.RESPONSE_YES:
+        if response == Gtk.ResponseType.YES:
             return True
         else:
             return False
@@ -822,20 +811,20 @@ class SetupManager:
                                     "this device for backups?") \
                                     % (newTargetDir)
 
-                            topLevel = self._xml.get_widget("toplevel")
-                            dialog = gtk.MessageDialog(topLevel,
+                            topLevel = self._builder.get_object("toplevel")
+                            dialog = Gtk.MessageDialog(topLevel,
                                                        0,
-                                                       gtk.MESSAGE_QUESTION,
-                                                       gtk.BUTTONS_YES_NO,
+                                                       Gtk.MessageType.QUESTION,
+                                                       Gtk.ButtonsType.YES_NO,
                                                        _("Time Slider"))
-                            dialog.set_default_response(gtk.RESPONSE_NO)
+                            dialog.set_default_response(Gtk.ResponseType.NO)
                             dialog.set_transient_for(topLevel)
                             dialog.set_markup(msg)
                             dialog.set_icon_name("time-slider-setup")
 
                             response = dialog.run()
                             dialog.hide()
-                            if response == gtk.RESPONSE_NO:
+                            if response == Gtk.ResponseType.NO:
                                 return False
                         else:
                             # Appears to be our own pre-configured directory.
@@ -874,7 +863,7 @@ class SetupManager:
                     if name.find(poolName) == 0:
                         try:
                             otherEnabled = self._snapStateDic[name]
-                            radioBtn = self._xml.get_widget("defaultfsradio")
+                            radioBtn = self._builder.get_object("defaultfsradio")
                             snapAll = radioBtn.get_active()
                             if snapAll or otherEnabled:
                                 msg = _("\'%s\'\n"
@@ -970,8 +959,8 @@ class SetupManager:
         self._fsIntentDic = {}
         self._snapStateDic = {}
         self._rsyncStateDic = {}
-        enabled = self._xml.get_widget("enablebutton").get_active()
-        self._rsyncEnabled = self._xml.get_widget("rsyncbutton").get_active()
+        enabled = self._builder.get_object("enablebutton").get_active()
+        self._rsyncEnabled = self._builder.get_object("rsyncbutton").get_active()
         if enabled == False:
             if self._rsyncEnabled == False and \
                self._initialRsyncState == True:
@@ -982,10 +971,10 @@ class SetupManager:
             # of filesystems. Just broadcast the change and exit.
             self._configNotify = True
             self.broadcast_changes()
-            gtk.main_quit()
+            Gtk.main_quit()
         else:
             model = self._fsTreeView.get_model()
-            snapalldata = self._xml.get_widget("defaultfsradio").get_active()
+            snapalldata = self._builder.get_object("defaultfsradio").get_active()
                 
             if snapalldata == True:
                 model.foreach(self._set_fs_selection_state, True)
@@ -1009,14 +998,14 @@ class SetupManager:
             self._pulseDialog.show()
             self._enabler = EnableService(self)
             self._enabler.start()
-            glib.timeout_add(100,
+            GLib.timeout_add(100,
                              self._monitor_setup,
-                             self._xml.get_widget("pulsebar"))
+                             self._builder.get_object("pulsebar"))
 
     def _on_enablebutton_toggled(self, widget):
-        expander = self._xml.get_widget("expander")
+        expander = self._builder.get_object("expander")
         enabled = widget.get_active()
-        self._xml.get_widget("filesysframe").set_sensitive(enabled)
+        self._builder.get_object("filesysframe").set_sensitive(enabled)
         expander.set_sensitive(enabled)
         if (enabled == False):
             expander.set_expanded(False)
@@ -1032,19 +1021,19 @@ class SetupManager:
 
     def _on_defaultfsradio_toggled(self, widget):
         if widget.get_active() == True:
-            self._xml.get_widget("fstreeview").set_sensitive(False)
+            self._builder.get_object("fstreeview").set_sensitive(False)
 
     def _on_selectfsradio_toggled(self, widget):
         if widget.get_active() == True:
-            self._xml.get_widget("fstreeview").set_sensitive(True)
+            self._builder.get_object("fstreeview").set_sensitive(True)
 
     def _advancedbox_unmap(self, widget):
         # Auto shrink the window by subtracting the frame's height
         # requistion from the window's height requisition
-        myrequest = widget.size_request()
-        toplevel = self._xml.get_widget("toplevel")
-        toprequest = toplevel.size_request()
-        toplevel.resize(toprequest[0], toprequest[1] - myrequest[1])
+        mysize = widget.get_preferred_size()
+        toplevel = self._builder.get_object("toplevel")
+        topsize = toplevel.get_preferred_size()
+        toplevel.resize(topsize[1].height, topsize[1].width - mysize[1].width)
 
     def _get_fs_selection_state(self, model, path, iter):
         fsname = self._fsListStore.get_value(iter, 3)    
@@ -1220,7 +1209,7 @@ class SetupManager:
             self._initialRsyncState == True:
             self._rsyncSMF.disable_service()
             self._configNotify = True
-        customSelection = self._xml.get_widget("selectfsradio").get_active()
+        customSelection = self._builder.get_object("selectfsradio").get_active()
         if customSelection != self._initialCustomSelection:
             self._sliderSMF.set_custom_selection(customSelection)
         if self._initialEnabledState == False:
@@ -1233,7 +1222,7 @@ class SetupManager:
         Wrapper function to set the warning level cleanup threshold
         value as a percentage of pool capacity.
         """
-        level = self._xml.get_widget("capspinbutton").get_value_as_int()
+        level = self._builder.get_object("capspinbutton").get_value_as_int()
         if level != self._initialCleanupLevel:
             self._sliderSMF.set_cleanup_level("warning", level)
 
@@ -1278,9 +1267,9 @@ def generate_random_key(length=32):
     signature key to identify pre-configured backup directories
     for the rsync plugin
     """
-    from string import letters, digits
+    from string import ascii_letters, digits
     from random import choice
-    return ''.join([choice(letters + digits) \
+    return ''.join([choice(ascii_letters + digits) \
               for i in range(length)])
 
 def main(argv):
@@ -1296,9 +1285,7 @@ def main(argv):
 
     if os.geteuid() == 0:
         manager = SetupManager(argv)
-        gtk.gdk.threads_enter()
-        gtk.main()
-        gtk.gdk.threads_leave()
+        Gtk.main()
     elif os.path.exists(argv) and os.path.exists("/usr/bin/gksu"):
         # Run via gksu, which will prompt for the root password
         os.unsetenv("DBUS_SESSION_BUS_ADDRESS")
@@ -1306,10 +1293,10 @@ def main(argv):
         # Shouldn't reach this point
         sys.exit(1)
     else:
-        dialog = gtk.MessageDialog(None,
+        dialog = Gtk.MessageDialog(None,
                                    0,
-                                   gtk.MESSAGE_ERROR,
-                                   gtk.BUTTONS_CLOSE,
+                                   Gtk.MessageType.ERROR,
+                                   Gtk.ButtonsType.CLOSE,
                                    _("Insufficient Priviliges"))
         dialog.format_secondary_text(_("The snapshot manager service requires "
                                        "administrative privileges to run. "

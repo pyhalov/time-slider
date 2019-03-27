@@ -86,10 +86,9 @@ install:
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/icons/hicolor/72x72/apps usr/share/icons/hicolor/72x72/apps/time-slider-setup.png
 	$(mkinstalldirs) $(DESTDIR)/usr/share/icons/hicolor/96x96/apps
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/icons/hicolor/96x96/apps usr/share/icons/hicolor/96x96/apps/time-slider-setup.png
-	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/glade
-	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/glade usr/share/time-slider/glade/time-slider-setup.glade
 	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/ui
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/ui usr/share/time-slider/ui/time-slider-delete.ui
+	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/ui usr/share/time-slider/ui/time-slider-setup.ui
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/ui usr/share/time-slider/ui/time-slider-snapshot.ui
 	$(INSTALL_DATA) $(DESTDIR)/usr/share/time-slider/ui usr/share/time-slider/ui/time-slider-version.ui
 	$(mkinstalldirs) $(DESTDIR)/usr/share/time-slider/lib/time_slider
