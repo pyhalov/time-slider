@@ -25,7 +25,7 @@ import sys
 import subprocess
 import syslog
 
-import rsyncsmf
+from rsync import rsyncsmf
 from time_slider import util, smf, zfs
 
 verboseprop = "plugin/verbose"

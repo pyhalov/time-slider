@@ -30,15 +30,19 @@ import time
 import threading
 import math
 import syslog
-import gobject
-import gio
 import dbus
 import shutil
 import copy
 from bisect import insort, bisect_left
 
 from time_slider import util, zfs, dbussvc, autosnapsmf, timeslidersmf
-import rsyncsmf
+from rsync import rsyncsmf
+
+try:
+    import gi
+    from gi.repository import GObject, Gio
+except:
+    sys.exit(1)
 
 
 verboseprop = "plugin/verbose"
@@ -427,7 +431,7 @@ class BackupQueue():
                        "Scanning removable devices.." \
                        % (path),
                        self._verbose)
-            volMonitor = gio.volume_monitor_get()
+            volMonitor = Gio.VolumeMonitor.get()
             mounts = volMonitor.get_mounts()
             for mount in mounts:
                 root = mount.get_root()
@@ -1241,7 +1245,6 @@ def main(argv):
     # Open up a syslog session
     syslog.openlog(sys.argv[0], 0, syslog.LOG_DAEMON)
 
-    gobject.threads_init()
     # Tell dbus to use the gobject mainloop for async ops
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     dbus.mainloop.glib.threads_init()
@@ -1251,9 +1254,9 @@ def main(argv):
     dbusObj = dbussvc.RsyncBackup(sysbus, \
         "/org/opensolaris/TimeSlider/plugin/rsync")
 
-    mainLoop = gobject.MainLoop()
+    mainLoop = GObject.MainLoop()
     backupQueue = BackupQueue(pluginFMRI, dbusObj, mainLoop)
-    gobject.idle_add(backupQueue.backup_snapshot)
+    GObject.idle_add(backupQueue.backup_snapshot)
     mainLoop.run()
     sys.exit(0)
 
