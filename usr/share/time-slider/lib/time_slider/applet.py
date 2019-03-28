@@ -34,7 +34,7 @@ import notify2
 try:
     import gi
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, GObject
+    from gi.repository import Gtk, GObject, Gio
 except:
     sys.exit(1)
 
@@ -72,7 +72,6 @@ class Note:
 
     def _notification_closed(self, notifcation):
         self._note = None
-        self._icon.set_blinking(False)
 
     def _show_notification(self):
         self._note.show()
@@ -96,7 +95,7 @@ class Note:
         else:
             iconList = ['gnome-dev-harddisk']
 
-        iconTheme = Gtk.icon_theme_get_default()
+        iconTheme = Gtk.IconTheme.get_default()
         iconInfo = iconTheme.choose_icon(iconList, 48, 0)
         pixbuf = iconInfo.load_icon()
 
@@ -117,11 +116,11 @@ class RsyncNote(Note):
         self._lock = threading.Lock()
         self._masterKey = None
         sysName,self._nodeName,rel,ver,arch = os.uname()
-        # References to gio.File and handler_id of a registered
-        # monitor callback on gio.File
+        # References to Gio.File and handler_id of a registered
+        # monitor callback on Gio.File
         self._fm = None
         self._fmID = None
-        # References to gio.VolumeMonitor and handler_ids of
+        # References to Gio.VolumeMonitor and handler_ids of
         # registered mount-added and mount-removed callbacks.
         self._vm = None
         self._vmAdd = None
@@ -189,7 +188,7 @@ class RsyncNote(Note):
             online = True
 
         if self._vm == None:
-            self._vm = gio.volume_monitor_get()
+            self._vm = Gio.VolumeMonitor.get()
 
         # If located, see if it's also managed by the volume monitor.
         # Or just try to find it otherwise.
@@ -199,8 +198,8 @@ class RsyncNote(Note):
             path = root.get_path()
             if self._baseTargetDir != None and \
                 path == self._baseTargetDir:
-                # Means the directory we found is gio monitored,
-                # so just monitor it using gio.VolumeMonitor.
+                # Means the directory we found is Gio monitored,
+                # so just monitor it using Gio.VolumeMonitor.
                 useVolMonitor = True
                 break
             elif self._validate_rsync_target(path) == True:
@@ -220,13 +219,13 @@ class RsyncNote(Note):
         else:
             # Found it
             if useVolMonitor == True:
-                # Looks like a removable device. Use gio.VolumeMonitor
+                # Looks like a removable device. Use Gio.VolumeMonitor
                 # as the preferred monitoring mechanism.
                 self._setup_volume_monitor()
             else:
                 # Found it on a static mount point like a zfs or nfs
                 # mount point.
-                # Can't use gio.VolumeMonitor so use a gio.File monitor
+                # Can't use Gio.VolumeMonitor so use a Gio.File monitor
                 # instead.
                 self._setup_file_monitor(self._masterTargetDir)
 
@@ -238,12 +237,12 @@ class RsyncNote(Note):
             
             
     def _setup_file_monitor(self, expectedPath):
-        # Use gio.File monitor as a fallback in 
-        # case gio.VolumeMonitor can't track the device.
+        # Use Gio.File monitor as a fallback in 
+        # case Gio.VolumeMonitor can't track the device.
         # This is the case for static/manual mount points
         # such as NFS, ZFS and other non-hotpluggables.
-        gFile = gio.File(path=expectedPath)
-        self._fm = gFile.monitor_file(gio.FILE_MONITOR_WATCH_MOUNTS)
+        gFile = Gio.File.new_for_path(expectedPath)
+        self._fm = gFile.monitor_file(Gio.FileMonitorFlags.WATCH_MOUNTS)
         self._fmID = self._fm.connect("changed",
                                       self._file_monitor_changed)
 
@@ -262,8 +261,8 @@ class RsyncNote(Note):
         root = mount.get_root()
         path = root.get_path()
         if self._validate_rsync_target(path) == True:
-            # Since gio.VolumeMonitor found the rsync target, don't
-            # bother relying on gio.File to find it any more. Disconnect
+            # Since Gio.VolumeMonitor found the rsync target, don't
+            # bother relying on Gio.File to find it any more. Disconnect
             # it's registered callbacks.
             if self._fm:
                 self._fm.disconnect(self._fmID)
@@ -535,7 +534,6 @@ class CleanupNote(Note):
         self._note.set_urgency(urgency)
         self._note.set_timeout(expiry)
         self._setup_icon_for_note()
-        self._icon.set_blinking(True)
         GObject.idle_add(self._show_notification)
 
     def _connect_to_object(self):
